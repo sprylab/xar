@@ -1,0 +1,276 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sprylab</groupId>
+    <artifactId>xar</artifactId>
+    <version>0.8.6-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>sprylab Xar</name>
+    <description>A Java library for reading eXtensible ARchiver files.</description>
+    <url>https://redmine.sprylab.com/projects/xar</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/sprylab/xar.git</connection>
+        <developerConnection>scm:git:git@github.com:sprylab/xar.git</developerConnection>
+        <url>https://github.com/sprylab/xar</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/sprylab/xar/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <name>Roman Zimmer</name>
+            <email>roman.zimmer@sprylab.com</email>
+        </developer>
+        <developer>
+            <name>Philip Schiffer</name>
+            <email>philip.schiffer@sprylab.com</email>
+        </developer>
+        <developer>
+            <name>Benjamin Kolb</name>
+            <email>benjamin.kolb@sprylab.com</email>
+        </developer>
+    </developers>
+
+    <properties>
+        <!-- Project Settings -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+
+        <!-- Dependency Versions -->
+        <simple-xml.version>2.7.1</simple-xml.version>
+        <junit.version>4.12</junit.version>
+        <commons-io.version>2.4</commons-io.version>
+        <commons-codec.version>1.10</commons-codec.version>
+        <commons-lang3.version>3.4</commons-lang3.version>
+        <joou.version>0.9.1</joou.version>
+        <commons-cli.version>1.2</commons-cli.version>
+        <jcabi-manifests.version>0.7.19</jcabi-manifests.version>
+        <org.slf4j-version>1.7.14</org.slf4j-version>
+
+        <!-- Plugin Versions -->
+        <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-source-plugin.version>3.0.0</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
+        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+        <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
+    </properties>
+
+    <dependencies>
+        <!-- Simple Xml Framework -->
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+            <version>${simple-xml.version}</version>
+        </dependency>
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${org.slf4j-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${org.slf4j-version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>joou</artifactId>
+            <version>${joou.version}</version>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>${buildnumber-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Version>${project.version} (based on git commit ${buildNumber})</Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>library</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${maven-compiler-plugin.version}</version>
+                        <configuration>
+                            <!-- exclude Main class when building as library -->
+                            <excludes>
+                                <exclude>**/Main.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+        <profile>
+            <id>standalone</id>
+
+            <dependencies>
+                <!-- Commons CLI -->
+                <dependency>
+                    <groupId>commons-cli</groupId>
+                    <artifactId>commons-cli</artifactId>
+                    <version>${commons-cli.version}</version>
+                </dependency>
+
+                <dependency>
+                    <groupId>com.jcabi</groupId>
+                    <artifactId>jcabi-manifests</artifactId>
+                    <version>${jcabi-manifests.version}</version>
+                </dependency>
+
+                <!-- Commons IO - is needed in compile scope for jcabi-manifests -->
+                <dependency>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                    <version>${commons-io.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!-- SLF4J NOP - suppresses jcabi-manifests logs -->
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                    <version>${org.slf4j-version}</version>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>${maven-shade-plugin.version}</version>
+                        <configuration>
+                            <shadedClassifierName>standalone</shadedClassifierName>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <minimizeJar>true</minimizeJar>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <transformers>
+                                        <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                            <mainClass>com.sprylab.xar.Main</mainClass>
+                                        </transformer>
+                                    </transformers>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
