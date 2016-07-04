@@ -7,12 +7,11 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang3.time.StopWatch;
 
 import com.jcabi.manifests.Manifests;
@@ -58,7 +57,7 @@ public class Main {
 
     public static void main(final String[] args) {
         final Options options = createCommandLineOptions();
-        final CommandLineParser parser = new PosixParser();
+        final CommandLineParser parser = new DefaultParser();
         try {
             final CommandLine line = parser.parse(options, args);
 
@@ -146,27 +145,33 @@ public class Main {
 
         final Option list = new Option(T_OPTION, "Lists an archive");
 
-        final Option file = OptionBuilder
-            .hasArg()
-            .withArgName(FILENAME_OPTION)
-            .withDescription("Specifies an archive to operate on [REQUIRED!]")
-            .create(F_OPTION);
+        final Option file = Option.builder(F_OPTION)
+                                  .hasArg()
+                                  .argName(FILENAME_OPTION)
+                                  .desc("Specifies an archive to operate on [REQUIRED!]")
+                                  .required()
+                                  .build();
 
-        final Option dumpToc = OptionBuilder.withLongOpt(DUMP_TOC_OPTION)
-            .withArgName(FILENAME_OPTION)
-            .hasArg()
-            .withDescription("Has xar dump the xml header into the specified file.")
-            .create();
+        final Option dumpToc = Option.builder()
+                                     .longOpt(DUMP_TOC_OPTION)
+                                     .hasArg()
+                                     .argName(FILENAME_OPTION)
+                                     .desc("Has xar dump the xml header into the specified file.")
+                                     .build();
 
-        final Option dumpHeader = OptionBuilder.withLongOpt(DUMP_HEADER_OPTION)
-            .withDescription("Prints out the xar binary header information")
-            .create();
+        final Option dumpHeader = Option.builder()
+                                        .longOpt(DUMP_HEADER_OPTION)
+                                        .desc("Prints out the xar binary header information")
+                                        .build();
 
-        final Option verbose = new Option(V_OPTION, "Print filenames as they are archived");
+        final Option verbose = Option.builder(V_OPTION)
+                                     .desc("Print filenames as they are archived")
+                                     .build();
 
-        final Option version = OptionBuilder.withLongOpt(VERSION_OPTION)
-            .withDescription("Print xar's version number")
-            .create();
+        final Option version = Option.builder()
+                                     .longOpt(VERSION_OPTION)
+                                     .desc("Print xar's version number")
+                                     .build();
 
         final Options options = new Options();
         options.addOption(extract);
