@@ -17,6 +17,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import com.jcabi.manifests.Manifests;
 import com.sprylab.xar.toc.ToCFactory;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
+import com.sprylab.xar.writer.XarPacker;
 
 /**
  * @author rzimmer
@@ -27,6 +28,11 @@ public class Main {
      * Verbose option.
      */
     private static final String V_OPTION = "v";
+
+    /**
+     * Create option.
+     */
+    private static final String C_OPTION = "c";
 
     /**
      * Extract option.
@@ -62,28 +68,47 @@ public class Main {
             final CommandLine line = parser.parse(options, args);
 
             if (line.hasOption(F_OPTION)) {
-                final XarFile xarFile = new XarFile(new File(line.getOptionValue(F_OPTION)));
+                final File archiveFile = new File(line.getOptionValue(F_OPTION));
+                final List<String> argList = line.getArgList();
 
-                if (line.hasOption(X_OPTION)) {
-                    final List<String> argList = line.getArgList();
-
-                    final File destination;
-                    if (argList == null || argList.isEmpty()) {
-                        destination = new File(getWorkingDir());
-                    } else {
-                        destination = new File(argList.get(0));
+                if (line.hasOption(C_OPTION)) {
+                    final XarPacker packer = new XarPacker(archiveFile);
+                    for (final String additionalArgument : argList) {
+                        final File fileToAdd = new File(additionalArgument);
+                        if (fileToAdd.isDirectory()) {
+                            try {
+                                packer.addDirectory(fileToAdd, false, null);
+                            } catch (final Exception e) {
+                                System.err.println(
+                                    "Cannot add " + fileToAdd.getAbsolutePath() + " as it's not a directory. Reason: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                    XarFile.DEBUG = line.hasOption(V_OPTION);
-                    extractFiles(xarFile, destination);
-                } else if (line.hasOption(T_OPTION)) {
-                    listEntries(xarFile);
-                } else if (line.hasOption(DUMP_HEADER_OPTION)) {
-                    dumpHeader(xarFile);
-                } else if (line.hasOption(DUMP_TOC_OPTION)) {
-                    final File tocFile = new File(line.getOptionValue(DUMP_TOC_OPTION));
-                    dumpToC(xarFile, tocFile);
+                    packer.write();
                 } else {
-                    printHelp(options);
+                    final XarFile xarFile = new XarFile(archiveFile);
+
+                    if (line.hasOption(X_OPTION)) {
+
+                        final File destination;
+                        if (argList == null || argList.isEmpty()) {
+                            destination = new File(getWorkingDir());
+                        } else {
+                            destination = new File(argList.get(0));
+                        }
+                        XarFile.DEBUG = line.hasOption(V_OPTION);
+                        extractFiles(xarFile, destination);
+                    } else if (line.hasOption(T_OPTION)) {
+                        listEntries(xarFile);
+                    } else if (line.hasOption(DUMP_HEADER_OPTION)) {
+                        dumpHeader(xarFile);
+                    } else if (line.hasOption(DUMP_TOC_OPTION)) {
+                        final File tocFile = new File(line.getOptionValue(DUMP_TOC_OPTION));
+                        dumpToC(xarFile, tocFile);
+                    } else {
+                        printHelp(options);
+                    }
                 }
             } else if (line.hasOption(VERSION_OPTION)) {
                 printVersion();
@@ -95,6 +120,8 @@ public class Main {
             System.err.println("Parsing failed.  Reason: " + e.getMessage());
         } catch (final IOException e) {
             System.err.println("Opening xar file failed. Reason: " + e.getMessage());
+        } catch (final Exception e) {
+            System.err.println("Unknown error. Reason: " + e.getMessage());
         }
     }
 
@@ -122,13 +149,13 @@ public class Main {
 
         final String headerStatus = header.hasValidMagic() ? "OK" : "INVALID";
 
-        System.out.println(String.format("magic:\t\t\t\t\t%#x (%s)", header.getMagic().intValue(), headerStatus));
-        System.out.println("size:\t\t\t\t\t" + header.getSize());
-        System.out.println("version:\t\t\t\t" + header.getVersion());
-        System.out.println("Compressed TOC length:\t" + header.getTocLengthCompressed());
+        System.out.println(String.format("magic:                   %#x (%s)", header.getMagic().intValue(), headerStatus));
+        System.out.println("size:                    " + header.getSize());
+        System.out.println("version:                 " + header.getVersion());
+        System.out.println("Compressed TOC length:   " + header.getTocLengthCompressed());
         System.out.println("Uncompressed TOC length: " + header.getTocLengthUncompressed());
         final int cksumAlg = header.getCksumAlg().intValue();
-        System.out.println(String.format("Checksum algorithm:\t\t%d (%s)", cksumAlg,
+        System.out.println(String.format("Checksum algorithm:  %d (%s)", cksumAlg,
             ChecksumAlgorithm.values()[cksumAlg]));
     }
 
@@ -141,6 +168,8 @@ public class Main {
     }
 
     private static Options createCommandLineOptions() {
+        final Option create = new Option(C_OPTION, "Creates an archive");
+
         final Option extract = new Option(X_OPTION, "Extracts an archive");
 
         final Option list = new Option(T_OPTION, "Lists an archive");
@@ -149,7 +178,6 @@ public class Main {
                                   .hasArg()
                                   .argName(FILENAME_OPTION)
                                   .desc("Specifies an archive to operate on [REQUIRED!]")
-                                  .required()
                                   .build();
 
         final Option dumpToc = Option.builder()
@@ -174,6 +202,7 @@ public class Main {
                                      .build();
 
         final Options options = new Options();
+        options.addOption(create);
         options.addOption(extract);
         options.addOption(list);
         options.addOption(file);

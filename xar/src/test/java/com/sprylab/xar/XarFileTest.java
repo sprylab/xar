@@ -87,7 +87,7 @@ public class XarFileTest {
     }
 
     private void checkEntries(final XarFile xarFile) {
-        final Map<String, Boolean> entriesToFind = new HashMap<String, Boolean>();
+        final Map<String, Boolean> entriesToFind = new HashMap<>();
 
         entriesToFind.put("file.txt", Boolean.FALSE);
         entriesToFind.put("dir", Boolean.FALSE);
@@ -124,7 +124,7 @@ public class XarFileTest {
     }
 
     private void checkSpecificEntries(final XarFile xarFile) {
-        final Map<String, Boolean> entriesToFind = new HashMap<String, Boolean>();
+        final Map<String, Boolean> entriesToFind = new HashMap<>();
 
         entriesToFind.put("dir/subdir1/subsubdir_1", Boolean.FALSE);
         entriesToFind.put("dir/subdir1/subsubdir_2", Boolean.FALSE);

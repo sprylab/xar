@@ -6,6 +6,7 @@ import java.io.IOException;
  * User: Philip Date: 28.10.2014 Time: 16:20
  */
 public class XarException extends IOException {
+
     public XarException() {
     }
 

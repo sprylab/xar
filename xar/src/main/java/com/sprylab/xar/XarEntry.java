@@ -1,7 +1,6 @@
 package com.sprylab.xar;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -9,10 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.NullInputStream;
 import org.apache.commons.lang3.StringUtils;
 
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
@@ -21,6 +16,13 @@ import com.sprylab.xar.toc.model.Encoding;
 import com.sprylab.xar.toc.model.SimpleChecksum;
 import com.sprylab.xar.toc.model.Type;
 import com.sprylab.xar.utils.FileAccessUtils;
+import com.sprylab.xar.utils.HashUtils;
+
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Source;
 
 /**
  * Represents an entry in a {@link XarFile}.
@@ -84,9 +86,20 @@ public class XarEntry {
 
         final Data data = file.getData();
         if (data != null) {
-            final SimpleChecksum extractedChecksum = data.getExtractedChecksum() != null ? data.getExtractedChecksum() : data.getUnarchivedChecksum();
-            xarEntry.checksumAlgorithm = extractedChecksum.getStyle();
-            xarEntry.checksum = extractedChecksum.getValue();
+            SimpleChecksum extractedChecksum = null;
+            if (data.getExtractedChecksum() != null) {
+                extractedChecksum = data.getExtractedChecksum();
+            } else if (data.getUnarchivedChecksum() != null) {
+                extractedChecksum = data.getUnarchivedChecksum();
+            }
+
+            if (extractedChecksum != null) {
+                xarEntry.checksumAlgorithm = extractedChecksum.getStyle();
+                xarEntry.checksum = extractedChecksum.getValue();
+            } else {
+                xarEntry.checksumAlgorithm = ChecksumAlgorithm.NONE;
+                xarEntry.checksum = null;
+            }
             xarEntry.size = data.getSize();
             xarEntry.offset = xarFile.getHeader().getSize().longValue()
                 + xarFile.getHeader().getTocLengthCompressed().longValue()
@@ -145,6 +158,13 @@ public class XarEntry {
     }
 
     /**
+     * @return the {@link ChecksumAlgorithm} used for this ntry
+     */
+    public ChecksumAlgorithm getChecksumAlgorithm() {
+        return checksumAlgorithm;
+    }
+
+    /**
      * @return uncompressed size of entry
      */
     public long getSize() {
@@ -165,26 +185,26 @@ public class XarEntry {
      */
     void addChild(final XarEntry childEntry) {
         if (children == null) {
-            children = new ArrayList<XarEntry>();
+            children = new ArrayList<>();
         }
         children.add(childEntry);
     }
 
-    public InputStream getInputStream() throws IOException {
+    public Source getSource() throws IOException {
         if (isDirectory) {
-            throw new IllegalStateException("Cannot get InputStream for entries of type directory.");
+            throw new IllegalStateException("Cannot retrieve source for entries of type directory.");
         }
 
         if (encoding == null) {
             // file is empty
-            return new NullInputStream(0L);
+            return new Buffer();
         }
 
         switch (encoding) {
             case NONE:
-                return FileAccessUtils.createLimitedBufferedInputStream(xarFile.getFile(), offset, length);
+                return FileAccessUtils.createLimitedBufferedSource(xarFile.getFile(), offset, length);
             case GZIP:
-                return FileAccessUtils.createLimitedInflaterInputStream(xarFile.getFile(), offset, length);
+                return FileAccessUtils.createLimitedInflaterSource(xarFile.getFile(), offset, length);
             case BZIP2:
                 // fall through
             default:
@@ -192,12 +212,12 @@ public class XarEntry {
         }
     }
 
+    public InputStream getInputStream() throws IOException {
+        return Okio.buffer(getSource()).inputStream();
+    }
+
     public byte[] getBytes() throws IOException {
-        final InputStream inputStream = getInputStream();
-        if (inputStream == null) {
-            return new byte[0];
-        }
-        return IOUtils.toByteArray(inputStream);
+        return Okio.buffer(getSource()).readByteArray();
     }
 
     /**
@@ -220,7 +240,7 @@ public class XarEntry {
             final List<XarEntry> entries = xarFile.getEntries();
             final String directoryPath = name.concat("/");
 
-            final List<XarEntry> files = new ArrayList<XarEntry>();
+            final List<XarEntry> files = new ArrayList<>();
 
             for (final XarEntry entry : entries) {
                 if (entry.getName().length() > directoryPath.length() && entry.getName().substring(0, directoryPath.length()).equals(directoryPath)) {
@@ -240,13 +260,11 @@ public class XarEntry {
             } else {
                 targetFile = new File(fileOrDirectory, name);
             }
-            FileUtils.forceMkdir(targetFile.getParentFile());
-            final InputStream data = getInputStream();
-            try {
-                FileUtils.copyInputStreamToFile(data, targetFile);
-            } finally {
-                IOUtils.closeQuietly(data);
+            targetFile.getParentFile().mkdirs();
 
+            try (Source source = getSource(); BufferedSink sink = Okio.buffer(Okio.sink(targetFile))) {
+                sink.writeAll(source);
+            } finally {
                 if (check) {
                     checkExtractedFile(targetFile);
                 }
@@ -258,22 +276,14 @@ public class XarEntry {
     }
 
     private void checkExtractedFile(final File targetFile) throws IOException {
-        if (checksumAlgorithm == null && size == 0L) {
+        if (checksumAlgorithm == null && size == 0L || checksumAlgorithm == ChecksumAlgorithm.NONE) {
             // empty files might have no checksum set
             return;
         }
-        final FileInputStream targetFileInputStream = FileUtils.openInputStream(targetFile);
-        String hash = null;
-        switch (checksumAlgorithm) {
-            case SHA1:
-                hash = DigestUtils.sha1Hex(targetFileInputStream);
-                break;
-            case MD5:
-                hash = DigestUtils.md5Hex(targetFileInputStream);
-                break;
-            case NONE:
-                return;
-        }
+
+        final BufferedSource source = Okio.buffer(Okio.source(targetFile));
+        source.require(targetFile.length());
+        final String hash = HashUtils.hashHex(source, checksumAlgorithm);
 
         if (!checksum.equals(hash)) {
             throw new IOException("Hash of extracted file does match the stored checksum.");
@@ -286,6 +296,7 @@ public class XarEntry {
     }
 
     public interface OnEntryExtractedListener {
+
         void onEntryExtracted(final XarEntry entry);
     }
 }

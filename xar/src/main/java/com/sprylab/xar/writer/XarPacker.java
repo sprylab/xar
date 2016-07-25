@@ -5,13 +5,13 @@ import java.io.FileOutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import com.sprylab.xar.toc.model.ChecksumAlgorithm;
+import com.sprylab.xar.toc.model.Encoding;
 
 public class XarPacker {
 
-    private static final Set<String> DEFAULT_PACK_EXTENSIONS = new HashSet<String>();
+    private static final Set<String> DEFAULT_PACK_EXTENSIONS = new HashSet<>();
 
     static {
         DEFAULT_PACK_EXTENSIONS.add("txt");
@@ -24,14 +24,15 @@ public class XarPacker {
     }
 
     private final File destFile;
+
     private final XarWriter writer;
 
-    public XarPacker(final String destFileName) {
-        destFile = new File(destFileName);
+    public XarPacker(final File archiveFile) {
+        destFile = archiveFile;
         if (destFile.exists()) {
             destFile.delete();
         }
-        writer = new XarWriter(ChecksumAlgorithm.SHA1);
+        writer = new XarWriter();
     }
 
     public void addDirectory(final File folder, final boolean asSubFolder, final Set<String> packedExtensions) throws Exception {
@@ -50,42 +51,16 @@ public class XarPacker {
                 writer.addDirectory(dir, parent);
                 addDirectoryContent(f, dir, packedExtensions);
             } else {
-                final int sep = f.getName().lastIndexOf('.');
-                final boolean compress = (sep >= 0) && packedExtensions.contains(f.getName().substring(sep + 1));
-                final XarSource source = new XarFileSource(f, compress);
+                final boolean compress = packedExtensions.contains(StringUtils.substringAfterLast(f.getName(), "."));
+                final XarSource source = new XarFileSource(f, compress ? Encoding.GZIP : Encoding.NONE);
                 writer.addSource(source, parent);
             }
         }
     }
 
     public void write() throws Exception {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(destFile);
+        try (FileOutputStream fos = new FileOutputStream(destFile)) {
             writer.write(fos);
-        } finally {
-            IOUtils.closeQuietly(fos);
-        }
-    }
-
-    public static void main(final String[] args) {
-        if ((args.length == 0) || (args.length > 2)) {
-            System.out.println("Usage: XarPacker <directory> [<target-file>]");
-            return;
-        }
-        final File folder = new File(args[0]);
-        if (!folder.isDirectory()) {
-            System.out.println("Directory not found: " + args[0]);
-            return;
-        }
-
-        final String destFileName = (args.length == 1) ? args[0] + ".xar" : args[1];
-        try {
-            final XarPacker packer = new XarPacker(destFileName);
-            packer.addDirectory(folder, false, null);
-            packer.write();
-        } catch (final Exception e) {
-            e.printStackTrace();
         }
     }
 

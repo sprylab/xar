@@ -6,19 +6,18 @@ import org.simpleframework.xml.Root;
 @Root
 public class Xar {
 
-	@Element
-	private ToC toc;
+    @Element
+    private ToC toc;
 
-	public ToC getToc() {
-		return toc;
-	}
+    public ToC getToc() {
+        return toc;
+    }
 
-	/**
-	 * @param toc
-	 *            the toc to set
-	 */
-	public void setToc(final ToC toc) {
-		this.toc = toc;
-	}
+    /**
+     * @param toc the toc to set
+     */
+    public void setToc(final ToC toc) {
+        this.toc = toc;
+    }
 
 }

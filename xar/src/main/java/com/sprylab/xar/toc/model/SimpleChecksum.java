@@ -7,33 +7,31 @@ import org.simpleframework.xml.Text;
 @Root
 public class SimpleChecksum {
 
-	@Attribute
-	private ChecksumAlgorithm style;
+    @Attribute
+    private ChecksumAlgorithm style;
 
-	@Text
-	private String value;
+    @Text
+    private String value;
 
-	public ChecksumAlgorithm getStyle() {
-		return style;
-	}
+    public ChecksumAlgorithm getStyle() {
+        return style;
+    }
 
-	public String getValue() {
-		return value;
-	}
+    public String getValue() {
+        return value;
+    }
 
-	/**
-	 * @param style
-	 *            the style to set
-	 */
-	public void setStyle(final ChecksumAlgorithm style) {
-		this.style = style;
-	}
+    /**
+     * @param style the style to set
+     */
+    public void setStyle(final ChecksumAlgorithm style) {
+        this.style = style;
+    }
 
-	/**
-	 * @param value
-	 *            the value to set
-	 */
-	public void setValue(final String value) {
-		this.value = value;
-	}
+    /**
+     * @param value the value to set
+     */
+    public void setValue(final String value) {
+        this.value = value;
+    }
 }

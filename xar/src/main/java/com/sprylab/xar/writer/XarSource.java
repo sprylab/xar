@@ -3,21 +3,23 @@ package com.sprylab.xar.writer;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 import com.sprylab.xar.toc.model.Encoding;
 
+import okio.Source;
+
 public interface XarSource {
 
-	String getName();
-	
-	long getLength();
+    String getName();
 
-	long getSize();
+    long getLength();
 
-	String getExtractedChecksum();
+    long getSize();
 
-	String getArchivedChecksum();
+    String getExtractedChecksum();
 
-	ChecksumAlgorithm getChecksumStyle();
+    String getArchivedChecksum();
 
-	Encoding getEncoding();
+    ChecksumAlgorithm getChecksumStyle();
 
-	XarContentProvider getProvider();
+    Encoding getEncoding();
+
+    Source getSource();
 }

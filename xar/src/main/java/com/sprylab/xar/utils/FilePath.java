@@ -8,6 +8,7 @@ import com.sprylab.xar.toc.model.File;
 
 /**
  * Represents a {@link File} with a given path location information.
+ *
  * @author hbakici
  */
 public class FilePath {
@@ -17,7 +18,7 @@ public class FilePath {
     }
 
     public static List<FilePath> fromFileList(final Collection<File> files, final String parentPath) {
-        final List<FilePath> filePaths = new ArrayList<FilePath>(files.size());
+        final List<FilePath> filePaths = new ArrayList<>(files.size());
         for (final File file : files) {
             filePaths.add(new FilePath(file, parentPath));
         }

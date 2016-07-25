@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+Version 0.9.2
+-------------
+
+ * use Okio instead of commons-codec and commons-io (#4)
+ * added unit tests for creating xar archives
+ * fixed bugs in creating xar archives (improves compatibility with original xar tool written in C)
+ * massively cleaned up and refactored code base
+ * create code coverage report when packaging
+ * set Java compiler source and target to 1.7
+
 Version 0.9.1
 -------------
 

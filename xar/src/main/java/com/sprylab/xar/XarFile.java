@@ -3,14 +3,12 @@ package com.sprylab.xar;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joou.UInteger;
 import org.joou.ULong;
@@ -23,12 +21,17 @@ import com.sprylab.xar.toc.model.ToC;
 import com.sprylab.xar.utils.FileAccessUtils;
 import com.sprylab.xar.utils.FilePath;
 
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Source;
+
 /**
  * Represents a eXtensible ARchiver file.
  *
  * @author rzimmer, hbakici
  */
 public class XarFile {
+
     private static final Logger LOG = LoggerFactory.getLogger(XarFile.class);
 
     static boolean DEBUG = false;
@@ -37,9 +40,9 @@ public class XarFile {
 
     private Header header;
 
-    private final List<XarEntry> entries = new ArrayList<XarEntry>();
+    private final List<XarEntry> entries = new ArrayList<>();
 
-    private final Map<String, XarEntry> nameToEntryMap = new HashMap<String, XarEntry>();
+    private final Map<String, XarEntry> nameToEntryMap = new HashMap<>();
 
     public XarFile(final File file) throws XarException {
         this.file = file;
@@ -56,16 +59,13 @@ public class XarFile {
     private void createEntries() throws XarException {
         // Unfortunately simple-xml throws Exceptions
         //noinspection OverlyBroadCatchBlock
-        InputStream inputStream = null;
-        try {
-            inputStream = getToCStream();
+        try (InputStream inputStream = getToCStream()) {
             final ToC toC = ToCFactory.fromInputStream(inputStream);
 
-            final Stack<FilePath> fileStack = new Stack<FilePath>();
+            final Stack<FilePath> fileStack = new Stack<>();
             fileStack.addAll(FilePath.fromFileList(toC.getFiles()));
 
             while (!fileStack.isEmpty()) {
-
                 final FilePath currentFile = fileStack.pop();
                 final com.sprylab.xar.toc.model.File fileEntry = currentFile.getFile();
                 final XarEntry xarEntry = XarEntry.createFromFile(this, fileEntry, currentFile.getParentPath());
@@ -82,14 +82,16 @@ public class XarFile {
         } catch (final Exception e) {
             LOG.error(e.getMessage(), e);
             throw new XarException("Error creating entries for " + file.toString(), e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
         }
     }
 
-    public InputStream getToCStream() throws IOException {
-        return FileAccessUtils.createLimitedInflaterInputStream(this.file, header.getSize().longValue(),
+    public Source getToCSource() throws IOException {
+        return FileAccessUtils.createLimitedInflaterSource(file, header.getSize().longValue(),
             header.getTocLengthCompressed().longValue());
+    }
+
+    public InputStream getToCStream() throws IOException {
+        return Okio.buffer(getToCSource()).inputStream();
     }
 
     private void addEntry(final XarEntry xarEntry) {
@@ -192,24 +194,21 @@ public class XarFile {
         private final UInteger cksumAlg;
 
         public Header(final File file) throws XarException {
-            RandomAccessFile randomAccessFile = null;
-            try {
-                randomAccessFile = new RandomAccessFile(file, "r");
-                this.magic = UInteger.valueOf(randomAccessFile.readInt());
+            try (BufferedSource source = Okio.buffer(Okio.source(file))) {
+
+                this.magic = UInteger.valueOf(source.readInt());
                 checkMagic();
 
-                this.size = UShort.valueOf(randomAccessFile.readShort());
+                this.size = UShort.valueOf(source.readShort());
 
-                this.version = UShort.valueOf(randomAccessFile.readShort());
+                this.version = UShort.valueOf(source.readShort());
 
-                this.tocLengthCompressed = ULong.valueOf(randomAccessFile.readLong());
-                this.tocLengthUncompressed = ULong.valueOf(randomAccessFile.readLong());
+                this.tocLengthCompressed = ULong.valueOf(source.readLong());
+                this.tocLengthUncompressed = ULong.valueOf(source.readLong());
 
-                this.cksumAlg = UInteger.valueOf(randomAccessFile.readInt());
+                this.cksumAlg = UInteger.valueOf(source.readInt());
             } catch (final IOException e) {
                 throw new XarException("Error opening XarFile", e);
-            } finally {
-                IOUtils.closeQuietly(randomAccessFile);
             }
         }
 

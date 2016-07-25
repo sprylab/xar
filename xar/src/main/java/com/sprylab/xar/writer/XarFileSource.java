@@ -1,122 +1,105 @@
 package com.sprylab.xar.writer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.DeflaterOutputStream;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import java.io.UnsupportedEncodingException;
+import java.util.zip.Deflater;
 
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 import com.sprylab.xar.toc.model.Encoding;
+import com.sprylab.xar.utils.HashUtils;
+
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.DeflaterSink;
+import okio.Okio;
+import okio.Source;
 
 public class XarFileSource implements XarSource {
-	
-	private File file;
-	private final File originalFile;
-	private final boolean compress;
-	private ChecksumAlgorithm checksumStyle = ChecksumAlgorithm.NONE;
-	private String extractedChecksum;
-	private final String archivedChecksum;
-	
-	public XarFileSource(final File file) throws IOException {
-		this(file, false);
-	}
-	
-	public XarFileSource(final File file, final boolean compress) throws IOException {
-		this(file, compress, ChecksumAlgorithm.NONE);
-	}
-	
-	public XarFileSource(final File file, final boolean compress, final ChecksumAlgorithm checksumStyle) throws IOException {
-		this.file = file;
-		this.originalFile = file;
-		this.checksumStyle = checksumStyle;
-		this.compress = compress;
-		if (compress) {
-			this.extractedChecksum = computeChecksum(file);
-			final File zipFile = File.createTempFile("xar-", ".gz");
-			final FileOutputStream fos = new FileOutputStream(zipFile);
-			final DeflaterOutputStream output = new DeflaterOutputStream(fos);
-			final FileInputStream input = new FileInputStream(file);
-			IOUtils.copy(input, output);
-			IOUtils.closeQuietly(input);
-			IOUtils.closeQuietly(output);
-			IOUtils.closeQuietly(fos);
-			this.file = zipFile;
-		}
-		this.archivedChecksum = computeChecksum(file);
-		if (!compress) {
-			this.extractedChecksum = archivedChecksum;
-		}
-	}
 
-	private String computeChecksum(final File targetFile) throws IOException {
-		final FileInputStream targetFileInpuStream = FileUtils.openInputStream(targetFile);
-		switch (checksumStyle) {
-			case SHA1:
-				return DigestUtils.sha1Hex(targetFileInpuStream);
-			case MD5:
-				return DigestUtils.md5Hex(targetFileInpuStream);
-			case NONE:
-			default:
-				return null;
-		}
-	}
+    private Buffer buffer = new Buffer();
 
-	@Override
-	public long getLength() {
-		return file.length();
-	}
+    private File file;
 
-	@Override
-	public ChecksumAlgorithm getChecksumStyle() {
-		return checksumStyle;
-	}
+    private Encoding encoding;
 
-	@Override
-	public Encoding getEncoding() {
-		return compress ? Encoding.GZIP : Encoding.NONE;
-	}
+    private ChecksumAlgorithm checksumStyle = ChecksumAlgorithm.NONE;
 
-	@Override
-	public XarContentProvider getProvider() {
-		return new XarContentProvider() {
-			
-			@Override
-			public InputStream open() throws IOException {
-				return new FileInputStream(file);
-			}
-			
-			@Override
-			public void completed() {
-				if (compress) {
-					file.delete();
-				}
-			}
-		};
-	}
+    private String extractedChecksum;
 
-	@Override
-	public String getName() {
-		return originalFile.getName();
-	}
+    private String archivedChecksum;
 
-	@Override
-	public long getSize() {
-		return originalFile.length();
-	}
+    public XarFileSource(final File file) throws IOException {
+        this(file, Encoding.NONE);
+    }
 
-	@Override
-	public String getExtractedChecksum() {
-		return extractedChecksum;
-	}
+    public XarFileSource(final File file, final Encoding encoding) throws IOException {
+        this(file, encoding, ChecksumAlgorithm.NONE);
+    }
 
-	@Override
-	public String getArchivedChecksum() {
-		return archivedChecksum;
-	}
+    public XarFileSource(final File file, final Encoding encoding, final ChecksumAlgorithm checksumStyle) throws IOException {
+        this.file = file;
+        this.encoding = encoding;
+        this.checksumStyle = checksumStyle;
+        final BufferedSource fileSource = Okio.buffer(Okio.source(file));
+        fileSource.require(file.length());
+        this.extractedChecksum = HashUtils.hashHex(fileSource, checksumStyle);
+        switch (encoding) {
+            case NONE:
+                this.buffer.writeAll(fileSource);
+                this.archivedChecksum = extractedChecksum;
+                break;
+            case GZIP:
+                try (BufferedSource input = Okio.buffer(Okio.source(file));
+                     BufferedSink output = Okio.buffer(new DeflaterSink(this.buffer, new Deflater()))) {
+                    output.writeAll(input);
+                    output.close();
+                    this.archivedChecksum = HashUtils.hashHex(this.buffer, checksumStyle);
+                }
+                break;
+            case BZIP2:
+                throw new UnsupportedEncodingException("Encoding not supported: " + encoding.name());
+        }
+    }
+
+    @Override
+    public long getLength() {
+        return buffer.size();
+    }
+
+    @Override
+    public ChecksumAlgorithm getChecksumStyle() {
+        return checksumStyle;
+    }
+
+    @Override
+    public Encoding getEncoding() {
+        return encoding;
+    }
+
+    @Override
+    public Source getSource() {
+        return buffer;
+    }
+
+    @Override
+    public String getName() {
+        return file.getName();
+    }
+
+    @Override
+    public long getSize() {
+        return file.length();
+    }
+
+    @Override
+    public String getExtractedChecksum() {
+        return extractedChecksum;
+    }
+
+    @Override
+    public String getArchivedChecksum() {
+        return archivedChecksum;
+    }
 }

@@ -23,25 +23,25 @@ import com.sprylab.xar.toc.model.Xar;
 
 public class ToCFactory {
 
-	private static Serializer SERIALIZER;
+    private static Serializer SERIALIZER;
 
-	private static Serializer getSerializer() {
-		if (SERIALIZER == null) {
-	        final Style style = new HyphenStyle();
-	        final Format format = new Format(style);
-	
-	        final RegistryMatcher matcher = new RegistryMatcher();
-	        matcher.bind(Date.class, DateTransform.class);
-	        matcher.bind(ChecksumAlgorithm.class, new LowerCaseEnumTransform(ChecksumAlgorithm.class));
-	        matcher.bind(Type.class, new LowerCaseEnumTransform(Type.class));
-	        matcher.bind(Encoding.class, new EncodingEnumTransform());
-	
-	        SERIALIZER = new Persister(matcher, format);
-		}
-		return SERIALIZER;
-	}
-	
-	
+    private static Serializer getSerializer() {
+        if (SERIALIZER == null) {
+            final Style style = new HyphenStyle();
+            final Format format = new Format(style);
+
+            final RegistryMatcher matcher = new RegistryMatcher();
+            matcher.bind(Date.class, DateTransform.class);
+            matcher.bind(ChecksumAlgorithm.class, new LowerCaseEnumTransform(ChecksumAlgorithm.class));
+            matcher.bind(Type.class, new LowerCaseEnumTransform(Type.class));
+            matcher.bind(Encoding.class, new EncodingEnumTransform());
+
+            SERIALIZER = new Persister(matcher, format);
+        }
+        return SERIALIZER;
+    }
+
+
     public static ToC fromFile(final File source) throws Exception {
         final Serializer serializer = getSerializer();
         final Xar xar = serializer.read(Xar.class, source, false);
@@ -61,7 +61,7 @@ public class ToCFactory {
     }
 
     public static void toOutputStream(final Xar xar, final OutputStream target) throws Exception {
-    	final Serializer serializer = getSerializer();
-    	serializer.write(xar, target);
+        final Serializer serializer = getSerializer();
+        serializer.write(xar, target);
     }
 }

@@ -130,122 +130,122 @@ public class File {
         return finderCreateTime;
     }
 
-	/**
-	 * @param childs the childs to set
-	 */
-	public void setChildren(final List<File> childs) {
-		this.childs = childs;
-	}
+    /**
+     * @param childs the childs to set
+     */
+    public void setChildren(final List<File> childs) {
+        this.childs = childs;
+    }
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(final String id) {
-		this.id = id;
-	}
+    /**
+     * @param id the id to set
+     */
+    public void setId(final String id) {
+        this.id = id;
+    }
 
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(final String name) {
-		this.name = name;
-	}
+    /**
+     * @param name the name to set
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(final Type type) {
-		this.type = type;
-	}
+    /**
+     * @param type the type to set
+     */
+    public void setType(final Type type) {
+        this.type = type;
+    }
 
-	/**
-	 * @param mode the mode to set
-	 */
-	public void setMode(final String mode) {
-		this.mode = mode;
-	}
+    /**
+     * @param mode the mode to set
+     */
+    public void setMode(final String mode) {
+        this.mode = mode;
+    }
 
-	/**
-	 * @param uid the uid to set
-	 */
-	public void setUid(final String uid) {
-		this.uid = uid;
-	}
+    /**
+     * @param uid the uid to set
+     */
+    public void setUid(final String uid) {
+        this.uid = uid;
+    }
 
-	/**
-	 * @param user the user to set
-	 */
-	public void setUser(final String user) {
-		this.user = user;
-	}
+    /**
+     * @param user the user to set
+     */
+    public void setUser(final String user) {
+        this.user = user;
+    }
 
-	/**
-	 * @param gid the gid to set
-	 */
-	public void setGid(final String gid) {
-		this.gid = gid;
-	}
+    /**
+     * @param gid the gid to set
+     */
+    public void setGid(final String gid) {
+        this.gid = gid;
+    }
 
-	/**
-	 * @param group the group to set
-	 */
-	public void setGroup(final String group) {
-		this.group = group;
-	}
+    /**
+     * @param group the group to set
+     */
+    public void setGroup(final String group) {
+        this.group = group;
+    }
 
-	/**
-	 * @param atime the atime to set
-	 */
-	public void setAtime(final Date atime) {
-		this.atime = atime;
-	}
+    /**
+     * @param atime the atime to set
+     */
+    public void setAtime(final Date atime) {
+        this.atime = atime;
+    }
 
-	/**
-	 * @param mtime the mtime to set
-	 */
-	public void setMtime(final Date mtime) {
-		this.mtime = mtime;
-	}
+    /**
+     * @param mtime the mtime to set
+     */
+    public void setMtime(final Date mtime) {
+        this.mtime = mtime;
+    }
 
-	/**
-	 * @param ctime the ctime to set
-	 */
-	public void setCtime(final Date ctime) {
-		this.ctime = ctime;
-	}
+    /**
+     * @param ctime the ctime to set
+     */
+    public void setCtime(final Date ctime) {
+        this.ctime = ctime;
+    }
 
-	/**
-	 * @param data the data to set
-	 */
-	public void setData(final Data data) {
-		this.data = data;
-	}
+    /**
+     * @param data the data to set
+     */
+    public void setData(final Data data) {
+        this.data = data;
+    }
 
-	/**
-	 * @param eas the eas to set
-	 */
-	public void setEas(final List<EA> eas) {
-		this.eas = eas;
-	}
+    /**
+     * @param eas the eas to set
+     */
+    public void setEas(final List<EA> eas) {
+        this.eas = eas;
+    }
 
-	/**
-	 * @param inode the inode to set
-	 */
-	public void setInode(final String inode) {
-		this.inode = inode;
-	}
+    /**
+     * @param inode the inode to set
+     */
+    public void setInode(final String inode) {
+        this.inode = inode;
+    }
 
-	/**
-	 * @param deviceno the deviceno to set
-	 */
-	public void setDeviceno(final String deviceno) {
-		this.deviceno = deviceno;
-	}
+    /**
+     * @param deviceno the deviceno to set
+     */
+    public void setDeviceno(final String deviceno) {
+        this.deviceno = deviceno;
+    }
 
-	/**
-	 * @param finderCreateTime the finderCreateTime to set
-	 */
-	public void setFinderCreateTime(final FinderTime finderCreateTime) {
-		this.finderCreateTime = finderCreateTime;
-	}
+    /**
+     * @param finderCreateTime the finderCreateTime to set
+     */
+    public void setFinderCreateTime(final FinderTime finderCreateTime) {
+        this.finderCreateTime = finderCreateTime;
+    }
 }

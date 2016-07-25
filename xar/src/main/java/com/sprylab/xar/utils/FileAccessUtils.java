@@ -1,36 +1,51 @@
 package com.sprylab.xar.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.InflaterInputStream;
+import java.util.zip.Inflater;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BoundedInputStream;
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.InflaterSource;
+import okio.Okio;
+import okio.Source;
 
-public class FileAccessUtils {
+/**
+ * Utility class for randomly accessing files.
+ */
+public final class FileAccessUtils {
+
+    private FileAccessUtils() {
+    }
 
     /**
-     * Creates a limited, buffered {@link InflaterInputStream} from a file.
+     * Creates a limited {@link InflaterSource} from a file.
      *
      * @param file   the file to read
      * @param offset the offset to start
      * @param length the number of bytes to read counting from offset
-     * @return a buffered {@link InputStream}
+     * @return a {@link InflaterSource} for accessing {@code file} constrained to {@code offset} and {@code length}
      * @throws IOException
      */
-    public static InputStream createLimitedInflaterInputStream(final File file, final long offset,
-                                                               final long length) throws IOException {
-        return new InflaterInputStream(createLimitedBufferedInputStream(file, offset, length));
+    public static Source createLimitedInflaterSource(final File file, final long offset, final long length) throws IOException {
+        return new InflaterSource(createLimitedBufferedSource(file, offset, length), new Inflater());
     }
 
-    public static InputStream createLimitedBufferedInputStream(final File file, final long offset,
-                                                               final long length) throws IOException {
-        final FileInputStream fileInputStream = FileUtils.openInputStream(file);
-        fileInputStream.skip(offset);
-        return IOUtils.toBufferedInputStream(new BoundedInputStream(fileInputStream, length));
+    /**
+     * Creates a limited {@link BufferedSource} from a file.
+     *
+     * @param file   the file to read
+     * @param offset the offset to start
+     * @param length the number of bytes to read counting from offset
+     * @return a {@link BufferedSource} for accessing {@code file} constrained to {@code offset} and {@code length}
+     * @throws IOException
+     */
+    public static Source createLimitedBufferedSource(final File file, final long offset, final long length) throws IOException {
+        final BufferedSource source = Okio.buffer(Okio.source(file));
+        source.skip(offset);
+        final Buffer buffer = new Buffer();
+        source.readFully(buffer, length);
+        return buffer;
     }
 
 }

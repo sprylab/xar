@@ -10,7 +10,7 @@ import org.simpleframework.xml.Root;
 @Root
 public class ToC {
 
-    @Element
+    @Element(required = false)
     private Checksum checksum;
 
     @Element
@@ -31,24 +31,24 @@ public class ToC {
         return files;
     }
 
-	/**
-	 * @param checksum the checksum to set
-	 */
-	public void setChecksum(final Checksum checksum) {
-		this.checksum = checksum;
-	}
+    /**
+     * @param checksum the checksum to set
+     */
+    public void setChecksum(final Checksum checksum) {
+        this.checksum = checksum;
+    }
 
-	/**
-	 * @param creationTime the creationTime to set
-	 */
-	public void setCreationTime(final Date creationTime) {
-		this.creationTime = creationTime;
-	}
+    /**
+     * @param creationTime the creationTime to set
+     */
+    public void setCreationTime(final Date creationTime) {
+        this.creationTime = creationTime;
+    }
 
-	/**
-	 * @param files the files to set
-	 */
-	public void setFiles(final List<File> files) {
-		this.files = files;
-	}
+    /**
+     * @param files the files to set
+     */
+    public void setFiles(final List<File> files) {
+        this.files = files;
+    }
 }
