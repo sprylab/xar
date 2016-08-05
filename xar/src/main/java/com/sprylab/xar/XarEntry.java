@@ -249,7 +249,7 @@ public class XarEntry {
 
             // extract them
             for (final XarEntry file : files) {
-                file.extract(fileOrDirectory, check);
+                file.extract(fileOrDirectory, check, listener);
             }
 
         } else {
