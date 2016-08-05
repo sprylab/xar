@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.zip.Inflater;
 
-import okio.Buffer;
 import okio.BufferedSource;
 import okio.InflaterSource;
 import okio.Okio;
@@ -41,11 +40,7 @@ public final class FileAccessUtils {
      * @throws IOException
      */
     public static Source createLimitedBufferedSource(final File file, final long offset, final long length) throws IOException {
-        final BufferedSource source = Okio.buffer(Okio.source(file));
-        source.skip(offset);
-        final Buffer buffer = new Buffer();
-        source.readFully(buffer, length);
-        return buffer;
+        return Okio.buffer(new RandomAccessFileSource(file, offset, length));
     }
 
 }

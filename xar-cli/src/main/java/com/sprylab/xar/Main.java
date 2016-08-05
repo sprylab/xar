@@ -129,7 +129,10 @@ public class Main {
     }
 
     private static void extractFiles(final XarFile xarFile, final File destinationDir) throws IOException {
+        long start = System.currentTimeMillis();
         xarFile.extractAll(destinationDir, false);
+        long stop = System.currentTimeMillis() - start;
+        System.out.println(String.format("Took %d seconds.", stop / 1000));
     }
 
     private static void listEntries(final XarFile xarfile) {
