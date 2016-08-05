@@ -65,12 +65,12 @@ Download [the latest JAR][2] or grab via Maven:
 <dependency>
   <groupId>com.sprylab.xar</groupId>
   <artifactId>xar</artifactId>
-  <version>0.9.2</version>
+  <version>0.9.3</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-compile 'com.sprylab.xar:xar:0.9.2'
+compile 'com.sprylab.xar:xar:0.9.3'
 ```
 
 There is also a CLI version, which mimics the behavior of the original C executable.

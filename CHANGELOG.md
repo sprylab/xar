@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.9.3
+-------------
+
+* massively increased performance for extracting files - at least for a lot of small files in an archive
+* fix XarEntry.OnEntryExtractedListener not being called
+* removed dependency to commons-lang3
+
 Version 0.9.2
 -------------
 
