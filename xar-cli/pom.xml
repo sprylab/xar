@@ -13,8 +13,14 @@
     <name>xar (CLI)</name>
 
     <properties>
+        <!-- Dependency versions -->
         <commons-cli.version>1.3.1</commons-cli.version>
         <jcabi-manifests.version>1.1</jcabi-manifests.version>
+
+        <!-- Plugin versions -->
+        <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
+        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
     </properties>
 
     <dependencies>
@@ -22,12 +28,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>xar</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Commons CLI -->
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.jcabi</groupId>
             <artifactId>jcabi-manifests</artifactId>
-            <version>1.1</version>
+            <version>${jcabi-manifests.version}</version>
         </dependency>
 
         <!-- Commons IO -->

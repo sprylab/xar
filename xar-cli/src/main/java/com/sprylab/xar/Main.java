@@ -12,7 +12,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang3.time.StopWatch;
 
 import com.jcabi.manifests.Manifests;
 import com.sprylab.xar.toc.ToCFactory;
@@ -130,11 +129,7 @@ public class Main {
     }
 
     private static void extractFiles(final XarFile xarFile, final File destinationDir) throws IOException {
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
         xarFile.extractAll(destinationDir, false);
-        stopWatch.stop();
-        System.out.println("Took " + stopWatch.toString());
     }
 
     private static void listEntries(final XarFile xarfile) {

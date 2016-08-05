@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 import com.sprylab.xar.toc.model.Data;
 import com.sprylab.xar.toc.model.Encoding;
@@ -17,6 +15,7 @@ import com.sprylab.xar.toc.model.SimpleChecksum;
 import com.sprylab.xar.toc.model.Type;
 import com.sprylab.xar.utils.FileAccessUtils;
 import com.sprylab.xar.utils.HashUtils;
+import com.sprylab.xar.utils.StringUtils;
 
 import okio.Buffer;
 import okio.BufferedSink;

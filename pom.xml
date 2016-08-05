@@ -68,20 +68,14 @@
         <maven.compiler.target>1.7</maven.compiler.target>
 
         <!-- Dependency versions -->
+        <org.slf4j-version>1.7.21</org.slf4j-version>
         <commons-io.version>2.5</commons-io.version>
 
-        <org.slf4j-version>1.7.21</org.slf4j-version>
-
-        <!-- Test dependency versions -->
-        <junit.version>4.12</junit.version>
-
         <!-- Plugin versions -->
-        <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
-        <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <jacoco-maven-plugin.version>0.7.7.201606060606</jacoco-maven-plugin.version>
+        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-        <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -109,14 +103,6 @@
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
             </dependency>
-
-            <!-- JUnit -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -126,7 +112,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.7.201606060606</version>
+                    <version>${jacoco-maven-plugin.version}</version>
                     <executions>
                         <execution>
                             <id>jacoco-initialize</id>
@@ -142,6 +128,11 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

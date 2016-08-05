@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joou.UInteger;
 import org.joou.ULong;
 import org.joou.UShort;
@@ -20,6 +19,7 @@ import com.sprylab.xar.toc.ToCFactory;
 import com.sprylab.xar.toc.model.ToC;
 import com.sprylab.xar.utils.FileAccessUtils;
 import com.sprylab.xar.utils.FilePath;
+import com.sprylab.xar.utils.StringUtils;
 
 import okio.BufferedSource;
 import okio.Okio;

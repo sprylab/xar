@@ -5,9 +5,8 @@ import java.io.FileOutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.sprylab.xar.toc.model.Encoding;
+import com.sprylab.xar.utils.StringUtils;
 
 public class XarPacker {
 
@@ -45,14 +44,14 @@ public class XarPacker {
     }
 
     public void addDirectoryContent(final File folder, final XarDirectory parent, final Set<String> packedExtensions) throws Exception {
-        for (final File f : folder.listFiles()) {
-            if (f.isDirectory()) {
-                final XarDirectory dir = new XarSimpleDirectory(f.getName());
+        for (final File file : folder.listFiles()) {
+            if (file.isDirectory()) {
+                final XarDirectory dir = new XarSimpleDirectory(file.getName());
                 writer.addDirectory(dir, parent);
-                addDirectoryContent(f, dir, packedExtensions);
+                addDirectoryContent(file, dir, packedExtensions);
             } else {
-                final boolean compress = packedExtensions.contains(StringUtils.substringAfterLast(f.getName(), "."));
-                final XarSource source = new XarFileSource(f, compress ? Encoding.GZIP : Encoding.NONE);
+                final boolean compress = packedExtensions.contains(StringUtils.substringAfterLast(file.getName(), "."));
+                final XarSource source = new XarFileSource(file, compress ? Encoding.GZIP : Encoding.NONE);
                 writer.addSource(source, parent);
             }
         }
