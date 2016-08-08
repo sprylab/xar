@@ -283,6 +283,7 @@ public class XarEntry {
         final BufferedSource source = Okio.buffer(Okio.source(targetFile));
         source.require(targetFile.length());
         final String hash = HashUtils.hashHex(source, checksumAlgorithm);
+        source.close();
 
         if (!checksum.equals(hash)) {
             throw new IOException("Hash of extracted file does match the stored checksum.");
