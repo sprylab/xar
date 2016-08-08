@@ -12,6 +12,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jcabi.manifests.Manifests;
 import com.sprylab.xar.toc.ToCFactory;
@@ -22,6 +24,8 @@ import com.sprylab.xar.writer.XarPacker;
  * @author rzimmer
  */
 public class Main {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     /**
      * Verbose option.
@@ -78,9 +82,7 @@ public class Main {
                             try {
                                 packer.addDirectory(fileToAdd, false, null);
                             } catch (final Exception e) {
-                                System.err.println(
-                                    "Cannot add " + fileToAdd.getAbsolutePath() + " as it's not a directory. Reason: " + e.getMessage());
-                                e.printStackTrace();
+                                LOG.error("Cannot add {} as it's not a directory.", fileToAdd.getAbsolutePath(), e);
                             }
                         }
                     }
@@ -116,11 +118,11 @@ public class Main {
             }
         } catch (final ParseException e) {
             printHelp(options);
-            System.err.println("Parsing failed.  Reason: " + e.getMessage());
+            LOG.error("Parsing commandline failed.", e);
         } catch (final IOException e) {
-            System.err.println("Opening xar file failed. Reason: " + e.getMessage());
+            LOG.error("Opening xar file failed.", e);
         } catch (final Exception e) {
-            System.err.println("Unknown error. Reason: " + e.getMessage());
+            LOG.error("Unknown error.", e);
         }
     }
 
@@ -129,16 +131,13 @@ public class Main {
     }
 
     private static void extractFiles(final XarFile xarFile, final File destinationDir) throws IOException {
-        long start = System.currentTimeMillis();
         xarFile.extractAll(destinationDir, false);
-        long stop = System.currentTimeMillis() - start;
-        System.out.println(String.format("Took %d seconds.", stop / 1000));
     }
 
     private static void listEntries(final XarFile xarfile) {
         final List<XarEntry> entries = xarfile.getEntries();
         for (final XarEntry entry : entries) {
-            System.out.println(entry.toString());
+            LOG.info(entry.toString());
         }
     }
 
@@ -147,21 +146,20 @@ public class Main {
 
         final String headerStatus = header.hasValidMagic() ? "OK" : "INVALID";
 
-        System.out.println(String.format("magic:                   %#x (%s)", header.getMagic().intValue(), headerStatus));
-        System.out.println("size:                    " + header.getSize());
-        System.out.println("version:                 " + header.getVersion());
-        System.out.println("Compressed TOC length:   " + header.getTocLengthCompressed());
-        System.out.println("Uncompressed TOC length: " + header.getTocLengthUncompressed());
+        LOG.info("magic:                   {} ({})", String.format("%#x", header.getMagic().intValue()), headerStatus);
+        LOG.info("size:                    {}", header.getSize());
+        LOG.info("version:                 {}", header.getVersion());
+        LOG.info("Compressed TOC length:   {}", header.getTocLengthCompressed());
+        LOG.info("Uncompressed TOC length: {}", header.getTocLengthUncompressed());
         final int cksumAlg = header.getCksumAlg().intValue();
-        System.out.println(String.format("Checksum algorithm:  %d (%s)", cksumAlg,
-            ChecksumAlgorithm.values()[cksumAlg]));
+        LOG.info("Checksum algorithm:      {} ({})", cksumAlg, ChecksumAlgorithm.values()[cksumAlg].toString().toLowerCase());
     }
 
     private static void dumpToC(final XarFile xarFile, final File tocFile) {
         try {
             ToCFactory.copy(xarFile.getToCStream(), new FileOutputStream(tocFile));
         } catch (final Exception e) {
-            System.err.println("Failed dumping header. Reason: " + e.getMessage());
+            LOG.error("Failed dumping header.", e);
         }
     }
 
@@ -217,8 +215,8 @@ public class Main {
     }
 
     private static void printVersion() {
-        System.out.println("xar " + Manifests.read(VERSION_MANIFEST_KEY));
-        System.out.println("This is a port to pure Java.");
+        LOG.info("xar {}", Manifests.read(VERSION_MANIFEST_KEY));
+        LOG.info("This is a port to pure Java.");
     }
 
 }
