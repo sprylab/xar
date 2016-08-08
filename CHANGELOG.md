@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 0.9.4
+-------------
+
+* fix resource leak (#5)
+* replace all calls to `System.out` with `slf4j-simple` in `xar-cli`
+* added TavisCI configuration
+
 Version 0.9.3
 -------------
 
