@@ -20,31 +20,22 @@ public class Checksum {
         return style;
     }
 
+    public void setStyle(final ChecksumAlgorithm style) {
+        this.style = style;
+    }
+
     public long getSize() {
         return size;
+    }
+
+    public void setSize(final long size) {
+        this.size = size;
     }
 
     public long getOffset() {
         return offset;
     }
 
-    /**
-     * @param style the style to set
-     */
-    public void setStyle(final ChecksumAlgorithm style) {
-        this.style = style;
-    }
-
-    /**
-     * @param size the size to set
-     */
-    public void setSize(final long size) {
-        this.size = size;
-    }
-
-    /**
-     * @param offset the offset to set
-     */
     public void setOffset(final long offset) {
         this.offset = offset;
     }

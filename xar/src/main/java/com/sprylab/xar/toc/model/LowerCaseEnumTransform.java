@@ -5,7 +5,7 @@ import java.util.Locale;
 import org.simpleframework.xml.transform.Transform;
 
 /**
- * This is a adopted <code>org.simpleframework.xml.transform.EnumTransform</code> class, which can read lowercase enums in
+ * This is a adopted {@code org.simpleframework.xml.transform.EnumTransform} class, which can read lowercase enums in
  * XML and maps them to uppercase enums in Java and vice versa.
  */
 public class LowerCaseEnumTransform implements Transform<Enum> {

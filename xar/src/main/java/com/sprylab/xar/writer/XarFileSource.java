@@ -69,7 +69,7 @@ public class XarFileSource implements XarSource {
     }
 
     @Override
-    public ChecksumAlgorithm getChecksumStyle() {
+    public ChecksumAlgorithm getChecksumAlgorithm() {
         return checksumStyle;
     }
 

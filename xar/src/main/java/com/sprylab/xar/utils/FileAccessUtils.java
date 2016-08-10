@@ -24,7 +24,7 @@ public final class FileAccessUtils {
      * @param offset the offset to start
      * @param length the number of bytes to read counting from offset
      * @return a {@link InflaterSource} for accessing {@code file} constrained to {@code offset} and {@code length}
-     * @throws IOException
+     * @throws IOException when an I/O error occurred while reading or opening the file
      */
     public static Source createLimitedInflaterSource(final File file, final long offset, final long length) throws IOException {
         return new InflaterSource(createLimitedBufferedSource(file, offset, length), new Inflater());
@@ -37,7 +37,7 @@ public final class FileAccessUtils {
      * @param offset the offset to start
      * @param length the number of bytes to read counting from offset
      * @return a {@link BufferedSource} for accessing {@code file} constrained to {@code offset} and {@code length}
-     * @throws IOException
+     * @throws IOException when an I/O error occurred while reading or opening the file
      */
     public static Source createLimitedBufferedSource(final File file, final long offset, final long length) throws IOException {
         return Okio.buffer(new RandomAccessFileSource(file, offset, length));

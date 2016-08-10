@@ -8,6 +8,9 @@ import okio.Buffer;
 import okio.Source;
 import okio.Timeout;
 
+/**
+ * Supplies a stream of bytes from an underlying {@link RandomAccessFile}.
+ */
 public class RandomAccessFileSource implements Source {
 
     private final RandomAccessFile randomAccessFile;
@@ -16,23 +19,42 @@ public class RandomAccessFileSource implements Source {
 
     private long remainingLength;
 
+    /**
+     * Creates a new {@link RandomAccessFileSource}, which reads the whole {@code file}.
+     *
+     * @param file the file to access
+     * @throws IOException when an I/O error occurred while reading or opening the file
+     */
     public RandomAccessFileSource(final File file) throws IOException {
         this(file, 0L, file.length());
     }
 
+    /**
+     * Creates a new {@link RandomAccessFileSource}, which reads a {@code file} starting from {@code offset} until {@code length} bytes are read.
+     *
+     * @param file the file to access
+     * @param offset the offset in bytes to start reading from
+     * @param length the number of bytes to read
+     * @throws IOException when an I/O error occurred while reading or opening the file
+     */
     public RandomAccessFileSource(final File file, final long offset, final long length) throws IOException {
         this(file, offset, length, new Timeout());
     }
 
+    /**
+     * Creates a new {@link RandomAccessFileSource}, which reads a {@code file} starting from {@code offset} until {@code length} bytes are read.
+     *
+     * @param file the file to access
+     * @param offset the offset in bytes to start reading from
+     * @param length the number of bytes to read
+     * @param timeout the timeout to use
+     * @throws IOException when an I/O error occurred while reading or opening the file
+     */
     public RandomAccessFileSource(final File file, final long offset, final long length, final Timeout timeout) throws IOException {
         this.randomAccessFile = new RandomAccessFile(file, "r");
-        this.timeout = timeout;
-
-        if (this.randomAccessFile.getFilePointer() != offset) {
-            this.randomAccessFile.seek(offset);
-        }
-
+        this.randomAccessFile.seek(offset);
         this.remainingLength = length;
+        this.timeout = timeout;
     }
 
     @Override

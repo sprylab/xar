@@ -25,8 +25,8 @@ import okio.Source;
 
 /**
  * Represents an entry in a {@link XarFile}.
- *
- * @author rzimmer, hbakici
+ * <p>
+ * An entry may correspond to a directory or a file when extracted (see {@link #isDirectory()}).
  */
 public class XarEntry {
 
@@ -64,6 +64,14 @@ public class XarEntry {
 
     private XarFile xarFile;
 
+    /**
+     * Creates a new entry linked to the given {@code xarFile}.
+     *
+     * @param xarFile    the {@link XarFile} this entry is linked to
+     * @param file       the corresponding file model
+     * @param parentPath the path of the parent directory, may be {@code null}
+     * @return the newly created entry
+     */
     public static XarEntry createFromFile(final XarFile xarFile, final com.sprylab.xar.toc.model.File file,
                                           final String parentPath) {
         final XarEntry xarEntry = new XarEntry();
@@ -100,9 +108,8 @@ public class XarEntry {
                 xarEntry.checksum = null;
             }
             xarEntry.size = data.getSize();
-            xarEntry.offset = xarFile.getHeader().getSize().longValue()
-                + xarFile.getHeader().getTocLengthCompressed().longValue()
-                + data.getOffset();
+            final XarFile.Header header = xarFile.getHeader();
+            xarEntry.offset = header.getSize().longValue() + header.getTocLengthCompressed().longValue() + data.getOffset();
             xarEntry.length = data.getLength();
             xarEntry.encoding = data.getEncoding();
         }
@@ -110,77 +117,101 @@ public class XarEntry {
         return xarEntry;
     }
 
+    /**
+     * @return the ID of this entry
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * @return the name of this entry - this corresponds to the path of this entry inside the {@link XarFile}
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @return {@code true} if entry corresponds to a directory, {@code false} if it corresponds to a file
+     */
     public boolean isDirectory() {
         return isDirectory;
     }
 
+    /**
+     * @return the UNIX permission mode for this entry
+     */
     public String getMode() {
         return mode;
     }
 
+    /**
+     * @return the UNIX user ID for this entry
+     */
     public String getUid() {
         return uid;
     }
 
+    /**
+     * @return the UNIX user name for this entry
+     */
     public String getUser() {
         return user;
     }
 
+    /**
+     * @return the UNIX group ID for this entry
+     */
     public String getGid() {
         return gid;
     }
 
+    /**
+     * @return the UNIX group name for this entry
+     */
     public String getGroup() {
         return group;
     }
 
     /**
-     * @return last modification time of entry
+     * @return the last modification time of this entry
      */
     public Date getTime() {
         return time;
     }
 
     /**
-     * @return uncompressed checksum of entry
+     * @return the uncompressed checksum of this entry
      */
     public String getChecksum() {
         return checksum;
     }
 
     /**
-     * @return the {@link ChecksumAlgorithm} used for this ntry
+     * @return the {@link ChecksumAlgorithm} used for this entry
      */
     public ChecksumAlgorithm getChecksumAlgorithm() {
         return checksumAlgorithm;
     }
 
     /**
-     * @return uncompressed size of entry
+     * @return the uncompressed size of entry
      */
     public long getSize() {
         return size;
     }
 
     /**
-     * @return children of this xar entry, or null if this entry is a file.
+     * @return children of this xar entry, or {@code null} if this entry is a file or has no children
      */
     public List<XarEntry> getChildren() {
         return children;
     }
 
     /**
-     * package local. Adds a child to the set of children.
+     * Adds a child to the list set of children.
      *
-     * @param childEntry the child to add.
+     * @param childEntry the child to add
      */
     void addChild(final XarEntry childEntry) {
         if (children == null) {
@@ -189,6 +220,18 @@ public class XarEntry {
         children.add(childEntry);
     }
 
+    /**
+     * Gets access to the underlying byte data of this entry.
+     * <p>
+     * This allows direct streaming from the archive file without extracting and writing the corresponding file to disk beforehand.
+     * If the data is encoded (see {@link Encoding}), then it will be decompressed while reading from the returned {@link Source}.
+     * <p>
+     * When trying to call this method on an directory entry (i.e. {@link #isDirectory()} returns {@code true}),
+     * an {@link IllegalStateException} is thrown.
+     *
+     * @return the {@link Source} to read from
+     * @throws IOException when an I/O error occurred while reading
+     */
     public Source getSource() throws IOException {
         if (isDirectory) {
             throw new IllegalStateException("Cannot retrieve source for entries of type directory.");
@@ -211,10 +254,24 @@ public class XarEntry {
         }
     }
 
+    /**
+     * Convenience method to get access to the underlying byte data of this entry as an {@link InputStream}.
+     *
+     * @return an (uncompressed) {@link InputStream} to read from
+     * @throws IOException when an I/O error occurred while reading
+     * @see #getSource()
+     */
     public InputStream getInputStream() throws IOException {
         return Okio.buffer(getSource()).inputStream();
     }
 
+    /**
+     * Convenience method to get access to the underlying byte data of this entry as a byte array.
+     *
+     * @return a (uncompressed) byte array
+     * @throws IOException when an I/O error occurred while reading
+     * @see #getSource()
+     */
     public byte[] getBytes() throws IOException {
         return Okio.buffer(getSource()).readByteArray();
     }
@@ -223,17 +280,34 @@ public class XarEntry {
      * Convenience method for extracting the corresponding file for this entry bypassing integrity check.
      *
      * @param fileOrDirectory destination directory for extracted files or file name for extracted file
-     * @throws IOException
+     * @throws IOException when an I/O error occurred while extracting
+     * @see #extract(File, boolean, OnEntryExtractedListener)
      */
     public void extract(final File fileOrDirectory) throws IOException {
         extract(fileOrDirectory, false);
     }
 
-    public void extract(final File fileOrDirectory, final boolean check) throws IOException {
-        extract(fileOrDirectory, check, null);
+    /**
+     * Convenience method for extracting the corresponding file for this entry with optional integrity check.
+     *
+     * @param fileOrDirectory destination directory for extracted files or file name for extracted file
+     * @param verifyIntegrity if {@code true}, the integrity of the extracted file will be verified after extraction
+     * @throws IOException when an I/O error occurred while extracting
+     * @see #extract(File, boolean, OnEntryExtractedListener)
+     */
+    public void extract(final File fileOrDirectory, final boolean verifyIntegrity) throws IOException {
+        extract(fileOrDirectory, verifyIntegrity, null);
     }
 
-    public void extract(final File fileOrDirectory, final boolean check, final OnEntryExtractedListener listener) throws IOException {
+    /**
+     * Extracts the underlying byte data of an entry and writes it to a file.
+     *
+     * @param fileOrDirectory destination directory for extracted files or file name for extracted file
+     * @param verifyIntegrity if {@code true}, the integrity of the extracted file will be verified after extraction
+     * @param listener        the listener that gets notified after the entry was extracted (successfully or not)
+     * @throws IOException when an I/O error occurred while extracting
+     */
+    public void extract(final File fileOrDirectory, final boolean verifyIntegrity, final OnEntryExtractedListener listener) throws IOException {
         if (isDirectory) {
             // get all files inside me
             final List<XarEntry> entries = xarFile.getEntries();
@@ -249,7 +323,7 @@ public class XarEntry {
 
             // extract them
             for (final XarEntry file : files) {
-                file.extract(fileOrDirectory, check, listener);
+                file.extract(fileOrDirectory, verifyIntegrity, listener);
             }
 
         } else {
@@ -264,8 +338,8 @@ public class XarEntry {
             try (Source source = getSource(); BufferedSink sink = Okio.buffer(Okio.sink(targetFile))) {
                 sink.writeAll(source);
             } finally {
-                if (check) {
-                    checkExtractedFile(targetFile);
+                if (verifyIntegrity) {
+                    verifyExtractedFile(targetFile);
                 }
                 if (listener != null) {
                     listener.onEntryExtracted(this);
@@ -274,7 +348,7 @@ public class XarEntry {
         }
     }
 
-    private void checkExtractedFile(final File targetFile) throws IOException {
+    private void verifyExtractedFile(final File targetFile) throws IOException {
         if (checksumAlgorithm == null && size == 0L || checksumAlgorithm == ChecksumAlgorithm.NONE) {
             // empty files might have no checksum set
             return;
@@ -295,8 +369,16 @@ public class XarEntry {
         return getName();
     }
 
+    /**
+     * Listens for {@link XarEntry} extraction events.
+     */
     public interface OnEntryExtractedListener {
 
+        /**
+         * Gets called after a {@link XarEntry} was extracted.
+         *
+         * @param entry the extracted {@link XarEntry}
+         */
         void onEntryExtracted(final XarEntry entry);
     }
 }

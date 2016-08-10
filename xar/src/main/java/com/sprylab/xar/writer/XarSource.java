@@ -17,7 +17,7 @@ public interface XarSource {
 
     String getArchivedChecksum();
 
-    ChecksumAlgorithm getChecksumStyle();
+    ChecksumAlgorithm getChecksumAlgorithm();
 
     Encoding getEncoding();
 

@@ -19,24 +19,15 @@ public class FinderTime {
         return time;
     }
 
-    /**
-     * @return the nanoseconds
-     */
+    public void setTime(final Date time) {
+        this.time = time;
+    }
+
     public long getNanoseconds() {
         return nanoseconds;
     }
 
-    /**
-     * @param nanoseconds the nanoseconds to set
-     */
     public void setNanoseconds(final long nanoseconds) {
         this.nanoseconds = nanoseconds;
-    }
-
-    /**
-     * @param time the time to set
-     */
-    public void setTime(final Date time) {
-        this.time = time;
     }
 }

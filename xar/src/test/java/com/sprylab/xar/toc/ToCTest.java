@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,10 +31,10 @@ public class ToCTest {
 
     @Test
     public void testToC() throws Exception {
-        final ToC noneToC = ToCFactory.fromFile(noneToCFile);
+        final ToC noneToC = ToCFactory.fromInputStream(FileUtils.openInputStream(noneToCFile));
         assertNotNull(noneToC);
 
-        final ToC gzipToC = ToCFactory.fromFile(gzipToCFile);
+        final ToC gzipToC = ToCFactory.fromInputStream(FileUtils.openInputStream(gzipToCFile));
         assertNotNull(gzipToC);
     }
 }

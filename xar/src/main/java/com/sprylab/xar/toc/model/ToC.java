@@ -23,31 +23,22 @@ public class ToC {
         return checksum;
     }
 
+    public void setChecksum(final Checksum checksum) {
+        this.checksum = checksum;
+    }
+
     public Date getCreationTime() {
         return creationTime;
+    }
+
+    public void setCreationTime(final Date creationTime) {
+        this.creationTime = creationTime;
     }
 
     public List<File> getFiles() {
         return files;
     }
 
-    /**
-     * @param checksum the checksum to set
-     */
-    public void setChecksum(final Checksum checksum) {
-        this.checksum = checksum;
-    }
-
-    /**
-     * @param creationTime the creationTime to set
-     */
-    public void setCreationTime(final Date creationTime) {
-        this.creationTime = creationTime;
-    }
-
-    /**
-     * @param files the files to set
-     */
     public void setFiles(final List<File> files) {
         this.files = files;
     }

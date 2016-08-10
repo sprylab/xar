@@ -6,6 +6,9 @@ import java.util.Date;
 
 import org.simpleframework.xml.transform.Transform;
 
+/**
+ * Transforms {@link String}s to {@link Date}s and vice versa using the date format used in xar files.
+ */
 public class DateTransform implements Transform<Date> {
 
     private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");

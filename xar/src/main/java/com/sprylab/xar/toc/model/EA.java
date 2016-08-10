@@ -17,20 +17,14 @@ public class EA extends Data {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param id the id to set
-     */
     public void setId(final String id) {
         this.id = id;
     }
 
-    /**
-     * @param name the name to set
-     */
+    public String getName() {
+        return name;
+    }
+
     public void setName(final String name) {
         this.name = name;
     }

@@ -4,6 +4,9 @@ import java.io.UnsupportedEncodingException;
 
 import org.simpleframework.xml.transform.Transform;
 
+/**
+ * Transforms {@link String}s to {@link Encoding}s and vice versa as used in xar files.
+ */
 public class EncodingEnumTransform implements Transform<Encoding> {
 
     public static final String MIME_TYPE_OCTET_STREAM = "application/octet-stream";

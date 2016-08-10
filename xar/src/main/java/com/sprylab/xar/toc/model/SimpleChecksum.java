@@ -17,20 +17,14 @@ public class SimpleChecksum {
         return style;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * @param style the style to set
-     */
     public void setStyle(final ChecksumAlgorithm style) {
         this.style = style;
     }
 
-    /**
-     * @param value the value to set
-     */
+    public String getValue() {
+        return value;
+    }
+
     public void setValue(final String value) {
         this.value = value;
     }

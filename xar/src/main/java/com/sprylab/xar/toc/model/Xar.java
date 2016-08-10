@@ -13,9 +13,6 @@ public class Xar {
         return toc;
     }
 
-    /**
-     * @param toc the toc to set
-     */
     public void setToc(final ToC toc) {
         this.toc = toc;
     }
