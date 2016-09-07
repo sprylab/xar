@@ -3,6 +3,7 @@ package com.sprylab.xar.toc.model;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.simpleframework.xml.transform.Transform;
 
@@ -11,7 +12,12 @@ import org.simpleframework.xml.transform.Transform;
  */
 public class DateTransform implements Transform<Date> {
 
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private final SimpleDateFormat format;
+
+    public DateTransform() {
+        format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     @Override
     public Date read(final String value) throws Exception {

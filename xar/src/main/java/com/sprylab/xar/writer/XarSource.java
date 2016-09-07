@@ -13,6 +13,8 @@ public interface XarSource {
 
     long getSize();
 
+    long getLastModified();
+
     String getExtractedChecksum();
 
     String getArchivedChecksum();

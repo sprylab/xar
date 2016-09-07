@@ -94,6 +94,11 @@ public class XarFileSource implements XarSource {
     }
 
     @Override
+    public long getLastModified() {
+        return file.lastModified();
+    }
+
+    @Override
     public String getExtractedChecksum() {
         return extractedChecksum;
     }

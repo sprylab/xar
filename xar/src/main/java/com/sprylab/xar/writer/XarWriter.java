@@ -85,6 +85,9 @@ public class XarWriter {
         file.setType(Type.FILE);
         file.setName(source.getName());
         file.setId(String.valueOf(id++));
+        final Date lastModifiedDate = new Date(source.getLastModified());
+        file.setMtime(lastModifiedDate);
+        file.setCtime(lastModifiedDate);
         final Data data = new Data();
         data.setOffset(currentOffset);
         data.setLength(source.getLength());
