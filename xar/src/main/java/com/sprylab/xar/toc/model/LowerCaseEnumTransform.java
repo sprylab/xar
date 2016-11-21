@@ -18,12 +18,12 @@ public class LowerCaseEnumTransform implements Transform<Enum> {
 
     @Override
     public Enum read(final String value) throws Exception {
-        return Enum.valueOf(type, value.toUpperCase(Locale.UK));
+        return Enum.valueOf(type, value.toUpperCase(Locale.ENGLISH));
     }
 
     @Override
     public String write(final Enum value) throws Exception {
-        return value.name().toLowerCase();
+        return value.name().toLowerCase(Locale.ENGLISH);
     }
 
 }

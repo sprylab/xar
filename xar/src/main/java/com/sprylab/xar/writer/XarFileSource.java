@@ -16,7 +16,7 @@ import okio.DeflaterSink;
 import okio.Okio;
 import okio.Source;
 
-public class XarFileSource implements XarSource {
+public class XarFileSource implements XarEntrySource {
 
     private Buffer buffer = new Buffer();
 
@@ -43,22 +43,22 @@ public class XarFileSource implements XarSource {
         this.encoding = encoding;
         this.checksumStyle = checksumStyle;
         try (final BufferedSource fileSource = Okio.buffer(Okio.source(file))) {
-	        fileSource.require(file.length());
-	        this.extractedChecksum = HashUtils.hashHex(fileSource, checksumStyle);
-	        switch (encoding) {
-	            case NONE:
-	                this.buffer.writeAll(fileSource);
-	                this.archivedChecksum = extractedChecksum;
-	                break;
-	            case GZIP:
-	                try (final BufferedSink output = Okio.buffer(new DeflaterSink(this.buffer, new Deflater(Deflater.BEST_COMPRESSION)))) {
-	                    output.writeAll(fileSource);
-	                }
+            fileSource.require(file.length());
+            this.extractedChecksum = HashUtils.hashHex(fileSource, checksumStyle);
+            switch (encoding) {
+                case NONE:
+                    this.buffer.writeAll(fileSource);
+                    this.archivedChecksum = extractedChecksum;
+                    break;
+                case GZIP:
+                    try (final BufferedSink output = Okio.buffer(new DeflaterSink(this.buffer, new Deflater(Deflater.BEST_COMPRESSION)))) {
+                        output.writeAll(fileSource);
+                    }
                     this.archivedChecksum = HashUtils.hashHex(this.buffer, checksumStyle);
-	                break;
-	            case BZIP2:
-	                throw new UnsupportedEncodingException("Encoding not supported: " + encoding.name());
-	        }
+                    break;
+                case BZIP2:
+                    throw new UnsupportedEncodingException("Encoding not supported: " + encoding.name());
+            }
         }
     }
 

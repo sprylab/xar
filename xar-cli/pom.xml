@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -19,14 +20,13 @@
 
         <!-- Plugin versions -->
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
-        <maven-shade-plugin.version>3.0.0</maven-shade-plugin.version>
+        <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>xar</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- Commons CLI -->

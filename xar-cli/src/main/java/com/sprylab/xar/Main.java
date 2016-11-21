@@ -142,7 +142,7 @@ public class Main {
     }
 
     private static void dumpHeader(final XarFile xarFile) {
-        final XarFile.Header header = xarFile.getHeader();
+        final XarHeader header = xarFile.getHeader();
 
         final String headerStatus = header.hasValidMagic() ? "OK" : "INVALID";
 

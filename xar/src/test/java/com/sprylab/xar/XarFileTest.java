@@ -20,8 +20,12 @@ import org.joou.ULong;
 import org.joou.UShort;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XarFileTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(XarFileTest.class);
 
     private static final String TEST_XAR_NONE_FILE_NAME = "test_none.xar";
 
@@ -33,34 +37,34 @@ public class XarFileTest {
 
     private File gzipTestFile;
 
-    private XarFile noneXarFile;
+    private XarSource noneXarSource;
 
-    private XarFile gzipXarFile;
+    private XarSource gzipXarSource;
 
     @Before
     public void setUp() throws Exception {
         noneTestFile = TestUtil.getClasspathResourceAsFile(TEST_XAR_NONE_FILE_NAME);
-        noneXarFile = new XarFile(noneTestFile);
+        noneXarSource = new XarFile(noneTestFile);
 
         gzipTestFile = TestUtil.getClasspathResourceAsFile(TEST_XAR_GZIP_FILE_NAME);
-        gzipXarFile = new XarFile(gzipTestFile);
+        gzipXarSource = new XarFile(gzipTestFile);
     }
 
     @Test
-    public void testOpenXar() {
+    public void testOpenXar() throws Exception {
         assertNotNull(noneTestFile);
-        assertNotNull(noneXarFile);
+        assertNotNull(noneXarSource);
 
         assertNotNull(gzipTestFile);
-        assertNotNull(gzipXarFile);
+        assertNotNull(gzipXarSource);
 
         checkNoneHeader();
 
         checkGzipHeader();
     }
 
-    private void checkNoneHeader() {
-        final XarFile.Header header = noneXarFile.getHeader();
+    private void checkNoneHeader() throws XarException {
+        final XarHeader header = noneXarSource.getHeader();
         assertEquals(UInteger.valueOf(0x78617221), header.getMagic());
         assertEquals(UShort.valueOf(28), header.getSize());
         assertEquals(UShort.valueOf(1), header.getVersion());
@@ -69,8 +73,8 @@ public class XarFileTest {
         assertEquals(UInteger.valueOf(1), header.getCksumAlg());
     }
 
-    private void checkGzipHeader() {
-        final XarFile.Header header = gzipXarFile.getHeader();
+    private void checkGzipHeader() throws XarException {
+        final XarHeader header = gzipXarSource.getHeader();
         assertEquals(UInteger.valueOf(0x78617221), header.getMagic());
         assertEquals(UShort.valueOf(28), header.getSize());
         assertEquals(UShort.valueOf(1), header.getVersion());
@@ -80,13 +84,13 @@ public class XarFileTest {
     }
 
     @Test
-    public void testListEntries() {
-        for (final XarFile xarFile : getXarFiles()) {
-            checkEntries(xarFile);
+    public void testListEntries() throws XarException {
+        for (final XarSource xarSource : getXarFiles()) {
+            checkEntries(xarSource);
         }
     }
 
-    private void checkEntries(final XarFile xarFile) {
+    private void checkEntries(final XarSource xarSource) throws XarException {
         final Map<String, Boolean> entriesToFind = new HashMap<>();
 
         entriesToFind.put("file.txt", Boolean.FALSE);
@@ -99,7 +103,7 @@ public class XarFileTest {
         entriesToFind.put("dir/subdir1/subsubdir_3", Boolean.FALSE);
         entriesToFind.put("dir/subdir1/subsubdir_3/1.txt", Boolean.FALSE);
 
-        final List<XarEntry> xarEntries = xarFile.getEntries();
+        final List<XarEntry> xarEntries = xarSource.getEntries();
 
         assertEquals(9, xarEntries.size());
 
@@ -118,18 +122,17 @@ public class XarFileTest {
 
     @Test
     public void testListSpecificEntries() throws Exception {
-        for (final XarFile xarFile : getXarFiles()) {
-            checkSpecificEntries(xarFile);
+        for (final XarSource xarSource : getXarFiles()) {
+            checkSpecificEntries(xarSource);
         }
     }
 
-    private void checkSpecificEntries(final XarFile xarFile) {
+    private void checkSpecificEntries(final XarSource xarFile) throws XarException {
         final Map<String, Boolean> entriesToFind = new HashMap<>();
 
         entriesToFind.put("dir/subdir1/subsubdir_1", Boolean.FALSE);
         entriesToFind.put("dir/subdir1/subsubdir_2", Boolean.FALSE);
         entriesToFind.put("dir/subdir1/subsubdir_3", Boolean.FALSE);
-
 
         final XarEntry entry = xarFile.getEntry("dir/subdir1");
         assertNotNull(entry);
@@ -153,14 +156,14 @@ public class XarFileTest {
 
     @Test
     public void testGetEntry() throws Exception {
-        for (final XarFile xarFile : getXarFiles()) {
-            checkEntry(xarFile, "file.txt", getResourceAsByteArray("unpacked/file.txt"));
-            checkEntry(xarFile, "dir/subdir1/subsubdir_1/subsubdir_file_1.txt",
-                       getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_1/subsubdir_file_1.txt"));
-            checkEntry(xarFile, "dir/subdir1/subsubdir_2/empty_file.txt",
-                       getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_2/empty_file.txt"));
-            checkEntry(xarFile, "dir/subdir1/subsubdir_3/1.txt",
-                       getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_3/1.txt"));
+        for (final XarSource xarSource : getXarFiles()) {
+            checkEntry(xarSource, "file.txt", getResourceAsByteArray("unpacked/file.txt"));
+            checkEntry(xarSource, "dir/subdir1/subsubdir_1/subsubdir_file_1.txt",
+                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_1/subsubdir_file_1.txt"));
+            checkEntry(xarSource, "dir/subdir1/subsubdir_2/empty_file.txt",
+                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_2/empty_file.txt"));
+            checkEntry(xarSource, "dir/subdir1/subsubdir_3/1.txt",
+                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_3/1.txt"));
         }
     }
 
@@ -168,9 +171,9 @@ public class XarFileTest {
         return IOUtils.toByteArray(FileUtils.openInputStream(TestUtil.getClasspathResourceAsFile(resourceName)));
     }
 
-    private void checkEntry(final XarFile xarFile, final String entryName, final byte[] expectedContent)
+    private void checkEntry(final XarSource xarSource, final String entryName, final byte[] expectedContent)
         throws IOException {
-        final XarEntry xarEntry = xarFile.getEntry(entryName);
+        final XarEntry xarEntry = xarSource.getEntry(entryName);
 
         assertEquals(entryName, xarEntry.getName());
 
@@ -182,26 +185,26 @@ public class XarFileTest {
 
     @Test
     public void testFileSize() {
-        assertEquals(noneTestFile.length(), noneXarFile.getSize());
-        assertEquals(gzipTestFile.length(), gzipXarFile.getSize());
+        assertEquals(noneTestFile.length(), noneXarSource.getSize());
+        assertEquals(gzipTestFile.length(), gzipXarSource.getSize());
     }
 
     @Test
     public void testExtractAllFiles() throws IOException, URISyntaxException {
-        for (final XarFile xarFile : getXarFiles()) {
+        for (final XarSource xarFile : getXarFiles()) {
             checkExtractAllFiles(xarFile, false);
             checkExtractAllFiles(xarFile, true);
         }
     }
 
-    private void checkExtractAllFiles(final XarFile xarFile, final boolean check)
+    private void checkExtractAllFiles(final XarSource xarSource, final boolean check)
         throws IOException, URISyntaxException {
         final File tempDir = TestUtil.getTempDirectory();
-        xarFile.extractAll(tempDir, check, new XarEntry.OnEntryExtractedListener() {
-
-            @Override
-            public void onEntryExtracted(final XarEntry entry) {
-                assertTrue(xarFile.hasEntry(entry.getName()));
+        xarSource.extractAll(tempDir, check, entry -> {
+            try {
+                assertTrue(xarSource.hasEntry(entry.getName()));
+            } catch (final XarException e) {
+                e.printStackTrace();
             }
         });
 
@@ -211,7 +214,7 @@ public class XarFileTest {
         final Collection<File> referenceFiles = FileUtils.listFiles(unpackedReferenceDirectory, null, true);
         for (final File referenceFile : referenceFiles) {
             final String relativeFileName = referenceFile.getAbsolutePath()
-                                                         .replace(unpackedReferenceDirectory.getAbsolutePath(), "");
+                .replace(unpackedReferenceDirectory.getAbsolutePath(), "");
 
             FileUtils.contentEquals(referenceFile, new File(tempDir, relativeFileName));
         }
@@ -222,22 +225,21 @@ public class XarFileTest {
 
     @Test
     public void testExtractDir() throws Exception {
-        for (final XarFile xarFile : getXarFiles()) {
+        for (final XarSource xarFile : getXarFiles()) {
             checkExtractDirectory(xarFile, false);
             checkExtractDirectory(xarFile, true);
         }
     }
 
-
-    private void checkExtractDirectory(final XarFile xarFile, final boolean check)
+    private void checkExtractDirectory(final XarSource xarFile, final boolean check)
         throws IOException, URISyntaxException {
         final File tempDir = TestUtil.getTempDirectory();
         final XarEntry xarEntry = xarFile.getEntry("dir");
-        xarEntry.extract(tempDir, check, new XarEntry.OnEntryExtractedListener() {
-
-            @Override
-            public void onEntryExtracted(final XarEntry entry) {
+        xarEntry.extract(tempDir, check, entry -> {
+            try {
                 assertTrue(xarFile.hasEntry(entry.getName()));
+            } catch (final XarException e) {
+                LOG.warn("Error extracting xar", e);
             }
         });
 
@@ -247,7 +249,7 @@ public class XarFileTest {
         final Collection<File> referenceFiles = FileUtils.listFiles(unpackedReferenceDirectory, null, true);
         for (final File referenceFile : referenceFiles) {
             final String relativeFileName = referenceFile.getAbsolutePath()
-                                                         .replace(unpackedReferenceDirectory.getAbsolutePath(), "");
+                .replace(unpackedReferenceDirectory.getAbsolutePath(), "");
 
             FileUtils.contentEquals(referenceFile, new File(tempDir, relativeFileName));
         }
@@ -256,8 +258,7 @@ public class XarFileTest {
         FileUtils.deleteDirectory(tempDir);
     }
 
-    private List<XarFile> getXarFiles() {
-        return Arrays.asList(noneXarFile, gzipXarFile);
+    private List<XarSource> getXarFiles() {
+        return Arrays.asList(noneXarSource, gzipXarSource);
     }
-
 }

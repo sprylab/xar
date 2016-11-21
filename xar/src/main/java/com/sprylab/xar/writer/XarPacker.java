@@ -77,7 +77,7 @@ public class XarPacker {
                 addDirectoryContent(file, dir, packedExtensions);
             } else {
                 final boolean compress = packedExtensions.contains(StringUtils.substringAfterLast(file.getName(), "."));
-                final XarSource source = new XarFileSource(file, compress ? Encoding.GZIP : Encoding.NONE);
+                final XarEntrySource source = new XarFileSource(file, compress ? Encoding.GZIP : Encoding.NONE);
                 writer.addSource(source, parent);
             }
         }
@@ -89,7 +89,7 @@ public class XarPacker {
      * @throws Exception
      */
     public void write() throws Exception {
-        try (FileOutputStream fos = new FileOutputStream(destFile)) {
+        try (final FileOutputStream fos = new FileOutputStream(destFile)) {
             writer.write(fos);
         }
     }

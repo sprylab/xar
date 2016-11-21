@@ -1,196 +1,196 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xar>
- <toc>
-  <checksum style="sha1">
-   <size>20</size>
-   <offset>0</offset>
-  </checksum>
-  <creation-time>2013-10-21T16:45:16</creation-time>
-  <file id="1">
-   <name>dir</name>
-   <type>directory</type>
-   <inode>13743520</inode>
-   <deviceno>16777220</deviceno>
-   <mode>0755</mode>
-   <uid>502</uid>
-   <user>hbakici</user>
-   <gid>20</gid>
-   <group>staff</group>
-   <atime>2013-10-21T16:44:15Z</atime>
-   <mtime>2013-10-21T16:42:05Z</mtime>
-   <ctime>2013-10-21T16:42:05Z</ctime>
-   <FinderCreateTime>
-    <time>1970-01-01T00:00:00</time>
-    <nanoseconds>0</nanoseconds>
-   </FinderCreateTime>
-   <file id="2">
-    <name>subdir1</name>
-    <type>directory</type>
-    <inode>13747639</inode>
-    <deviceno>16777220</deviceno>
-    <mode>0755</mode>
-    <uid>502</uid>
-    <user>hbakici</user>
-    <gid>20</gid>
-    <group>staff</group>
-    <atime>2013-10-21T16:44:15Z</atime>
-    <mtime>2013-10-21T16:40:37Z</mtime>
-    <ctime>2013-10-21T16:40:37Z</ctime>
-    <FinderCreateTime>
-     <time>1970-01-01T00:00:00</time>
-     <nanoseconds>140192027508736</nanoseconds>
-    </FinderCreateTime>
-    <file id="3">
-     <name>subsubdir_1</name>
-     <type>directory</type>
-     <inode>13747641</inode>
-     <deviceno>16777220</deviceno>
-     <mode>0755</mode>
-     <uid>502</uid>
-     <user>hbakici</user>
-     <gid>20</gid>
-     <group>staff</group>
-     <atime>2013-10-21T16:44:15Z</atime>
-     <mtime>2013-10-18T15:41:08Z</mtime>
-     <ctime>2013-10-21T12:49:34Z</ctime>
-     <FinderCreateTime>
-      <time>1970-01-01T00:00:00</time>
-      <nanoseconds>140192027508736</nanoseconds>
-     </FinderCreateTime>
-     <file id="4">
-      <name>subsubdir_file_1.txt</name>
-      <type>file</type>
-      <inode>13785703</inode>
-      <deviceno>16777220</deviceno>
-      <mode>0644</mode>
-      <uid>502</uid>
-      <user>hbakici</user>
-      <gid>20</gid>
-      <group>staff</group>
-      <atime>2013-10-21T16:44:15Z</atime>
-      <mtime>2013-10-18T15:41:08Z</mtime>
-      <ctime>2013-10-21T12:49:34Z</ctime>
-      <FinderCreateTime>
-       <time>1970-01-01T00:00:00</time>
-       <nanoseconds>140192027508736</nanoseconds>
-      </FinderCreateTime>
-      <data>
-       <extracted-checksum style="sha1">430ce34d020724ed75a196dfc2ad67c77772d169</extracted-checksum>
-       <archived-checksum style="sha1">0bfd5db240c2998db5078502079fdc0a87d71eae</archived-checksum>
-       <encoding style="application/x-gzip"/>
-       <size>12</size>
-       <offset>20</offset>
-       <length>20</length>
-      </data>
-     </file>
-    </file>
-    <file id="5">
-     <name>subsubdir_2</name>
-     <type>directory</type>
-     <inode>13777991</inode>
-     <deviceno>16777220</deviceno>
-     <mode>0755</mode>
-     <uid>502</uid>
-     <user>hbakici</user>
-     <gid>20</gid>
-     <group>staff</group>
-     <atime>2013-10-21T16:44:15Z</atime>
-     <mtime>2013-10-21T16:39:54Z</mtime>
-     <ctime>2013-10-21T16:39:54Z</ctime>
-     <FinderCreateTime>
-      <time>1970-01-01T00:00:00</time>
-      <nanoseconds>140192027508736</nanoseconds>
-     </FinderCreateTime>
-     <file id="6">
-      <name>empty_file.txt</name>
-      <type>file</type>
-      <inode>13785705</inode>
-      <deviceno>16777220</deviceno>
-      <mode>0644</mode>
-      <uid>502</uid>
-      <user>hbakici</user>
-      <gid>20</gid>
-      <group>staff</group>
-      <atime>2013-10-21T16:44:15Z</atime>
-      <mtime>2013-10-21T08:37:00Z</mtime>
-      <ctime>2013-10-21T12:49:34Z</ctime>
-      <FinderCreateTime>
-       <time>1970-01-01T00:00:00</time>
-       <nanoseconds>140192027508736</nanoseconds>
-      </FinderCreateTime>
-     </file>
-    </file>
-    <file id="7">
-     <name>subsubdir_3</name>
-     <type>directory</type>
-     <inode>13778007</inode>
-     <deviceno>16777220</deviceno>
-     <mode>0755</mode>
-     <uid>502</uid>
-     <user>hbakici</user>
-     <gid>20</gid>
-     <group>staff</group>
-     <atime>2013-10-21T16:44:15Z</atime>
-     <mtime>2013-10-21T16:38:56Z</mtime>
-     <ctime>2013-10-21T16:38:56Z</ctime>
-     <FinderCreateTime>
-      <time>1970-01-01T00:00:00</time>
-      <nanoseconds>140192027508736</nanoseconds>
-     </FinderCreateTime>
-     <file id="8">
-      <name>1.txt</name>
-      <type>file</type>
-      <inode>13785702</inode>
-      <deviceno>16777220</deviceno>
-      <mode>0644</mode>
-      <uid>502</uid>
-      <user>hbakici</user>
-      <gid>20</gid>
-      <group>staff</group>
-      <atime>2013-10-21T16:44:15Z</atime>
-      <mtime>2013-10-18T15:41:08Z</mtime>
-      <ctime>2013-10-21T12:49:34Z</ctime>
-      <FinderCreateTime>
-       <time>1970-01-01T00:00:00</time>
-       <nanoseconds>140192027508736</nanoseconds>
-      </FinderCreateTime>
-      <data>
-       <extracted-checksum style="sha1">274a5f67d6c06f5ef3bc3c0bbee98105ea194c5e</extracted-checksum>
-       <archived-checksum style="sha1">dc6fb464f4857b0e429e13735ecd9f4fae0c8fcb</archived-checksum>
-       <encoding style="application/x-gzip"/>
-       <size>14</size>
-       <offset>40</offset>
-       <length>22</length>
-      </data>
-     </file>
-    </file>
-   </file>
-  </file>
-  <file id="9">
-   <name>file.txt</name>
-   <type>file</type>
-   <inode>13743523</inode>
-   <deviceno>16777220</deviceno>
-   <mode>0644</mode>
-   <uid>502</uid>
-   <user>hbakici</user>
-   <gid>20</gid>
-   <group>staff</group>
-   <atime>2013-10-21T16:44:15Z</atime>
-   <mtime>2013-10-18T14:41:00Z</mtime>
-   <ctime>2013-10-18T14:41:00Z</ctime>
-   <FinderCreateTime>
-    <time>1970-01-01T00:00:00</time>
-    <nanoseconds>0</nanoseconds>
-   </FinderCreateTime>
-   <data>
-    <extracted-checksum style="sha1">046c168df2244d3a13985f042a50e479fe56455e</extracted-checksum>
-    <archived-checksum style="sha1">5ddc4863d4626b26363b082999fe95a47fde761c</archived-checksum>
-    <encoding style="application/x-gzip"/>
-    <size>5</size>
-    <offset>62</offset>
-    <length>13</length>
-   </data>
-  </file>
- </toc>
+    <toc>
+        <checksum style="sha1">
+            <size>20</size>
+            <offset>0</offset>
+        </checksum>
+        <creation-time>2013-10-21T16:45:16</creation-time>
+        <file id="1">
+            <name>dir</name>
+            <type>directory</type>
+            <inode>13743520</inode>
+            <deviceno>16777220</deviceno>
+            <mode>0755</mode>
+            <uid>502</uid>
+            <user>hbakici</user>
+            <gid>20</gid>
+            <group>staff</group>
+            <atime>2013-10-21T16:44:15Z</atime>
+            <mtime>2013-10-21T16:42:05Z</mtime>
+            <ctime>2013-10-21T16:42:05Z</ctime>
+            <FinderCreateTime>
+                <time>1970-01-01T00:00:00</time>
+                <nanoseconds>0</nanoseconds>
+            </FinderCreateTime>
+            <file id="2">
+                <name>subdir1</name>
+                <type>directory</type>
+                <inode>13747639</inode>
+                <deviceno>16777220</deviceno>
+                <mode>0755</mode>
+                <uid>502</uid>
+                <user>hbakici</user>
+                <gid>20</gid>
+                <group>staff</group>
+                <atime>2013-10-21T16:44:15Z</atime>
+                <mtime>2013-10-21T16:40:37Z</mtime>
+                <ctime>2013-10-21T16:40:37Z</ctime>
+                <FinderCreateTime>
+                    <time>1970-01-01T00:00:00</time>
+                    <nanoseconds>140192027508736</nanoseconds>
+                </FinderCreateTime>
+                <file id="3">
+                    <name>subsubdir_1</name>
+                    <type>directory</type>
+                    <inode>13747641</inode>
+                    <deviceno>16777220</deviceno>
+                    <mode>0755</mode>
+                    <uid>502</uid>
+                    <user>hbakici</user>
+                    <gid>20</gid>
+                    <group>staff</group>
+                    <atime>2013-10-21T16:44:15Z</atime>
+                    <mtime>2013-10-18T15:41:08Z</mtime>
+                    <ctime>2013-10-21T12:49:34Z</ctime>
+                    <FinderCreateTime>
+                        <time>1970-01-01T00:00:00</time>
+                        <nanoseconds>140192027508736</nanoseconds>
+                    </FinderCreateTime>
+                    <file id="4">
+                        <name>subsubdir_file_1.txt</name>
+                        <type>file</type>
+                        <inode>13785703</inode>
+                        <deviceno>16777220</deviceno>
+                        <mode>0644</mode>
+                        <uid>502</uid>
+                        <user>hbakici</user>
+                        <gid>20</gid>
+                        <group>staff</group>
+                        <atime>2013-10-21T16:44:15Z</atime>
+                        <mtime>2013-10-18T15:41:08Z</mtime>
+                        <ctime>2013-10-21T12:49:34Z</ctime>
+                        <FinderCreateTime>
+                            <time>1970-01-01T00:00:00</time>
+                            <nanoseconds>140192027508736</nanoseconds>
+                        </FinderCreateTime>
+                        <data>
+                            <extracted-checksum style="sha1">430ce34d020724ed75a196dfc2ad67c77772d169</extracted-checksum>
+                            <archived-checksum style="sha1">0bfd5db240c2998db5078502079fdc0a87d71eae</archived-checksum>
+                            <encoding style="application/x-gzip" />
+                            <size>12</size>
+                            <offset>20</offset>
+                            <length>20</length>
+                        </data>
+                    </file>
+                </file>
+                <file id="5">
+                    <name>subsubdir_2</name>
+                    <type>directory</type>
+                    <inode>13777991</inode>
+                    <deviceno>16777220</deviceno>
+                    <mode>0755</mode>
+                    <uid>502</uid>
+                    <user>hbakici</user>
+                    <gid>20</gid>
+                    <group>staff</group>
+                    <atime>2013-10-21T16:44:15Z</atime>
+                    <mtime>2013-10-21T16:39:54Z</mtime>
+                    <ctime>2013-10-21T16:39:54Z</ctime>
+                    <FinderCreateTime>
+                        <time>1970-01-01T00:00:00</time>
+                        <nanoseconds>140192027508736</nanoseconds>
+                    </FinderCreateTime>
+                    <file id="6">
+                        <name>empty_file.txt</name>
+                        <type>file</type>
+                        <inode>13785705</inode>
+                        <deviceno>16777220</deviceno>
+                        <mode>0644</mode>
+                        <uid>502</uid>
+                        <user>hbakici</user>
+                        <gid>20</gid>
+                        <group>staff</group>
+                        <atime>2013-10-21T16:44:15Z</atime>
+                        <mtime>2013-10-21T08:37:00Z</mtime>
+                        <ctime>2013-10-21T12:49:34Z</ctime>
+                        <FinderCreateTime>
+                            <time>1970-01-01T00:00:00</time>
+                            <nanoseconds>140192027508736</nanoseconds>
+                        </FinderCreateTime>
+                    </file>
+                </file>
+                <file id="7">
+                    <name>subsubdir_3</name>
+                    <type>directory</type>
+                    <inode>13778007</inode>
+                    <deviceno>16777220</deviceno>
+                    <mode>0755</mode>
+                    <uid>502</uid>
+                    <user>hbakici</user>
+                    <gid>20</gid>
+                    <group>staff</group>
+                    <atime>2013-10-21T16:44:15Z</atime>
+                    <mtime>2013-10-21T16:38:56Z</mtime>
+                    <ctime>2013-10-21T16:38:56Z</ctime>
+                    <FinderCreateTime>
+                        <time>1970-01-01T00:00:00</time>
+                        <nanoseconds>140192027508736</nanoseconds>
+                    </FinderCreateTime>
+                    <file id="8">
+                        <name>1.txt</name>
+                        <type>file</type>
+                        <inode>13785702</inode>
+                        <deviceno>16777220</deviceno>
+                        <mode>0644</mode>
+                        <uid>502</uid>
+                        <user>hbakici</user>
+                        <gid>20</gid>
+                        <group>staff</group>
+                        <atime>2013-10-21T16:44:15Z</atime>
+                        <mtime>2013-10-18T15:41:08Z</mtime>
+                        <ctime>2013-10-21T12:49:34Z</ctime>
+                        <FinderCreateTime>
+                            <time>1970-01-01T00:00:00</time>
+                            <nanoseconds>140192027508736</nanoseconds>
+                        </FinderCreateTime>
+                        <data>
+                            <extracted-checksum style="sha1">274a5f67d6c06f5ef3bc3c0bbee98105ea194c5e</extracted-checksum>
+                            <archived-checksum style="sha1">dc6fb464f4857b0e429e13735ecd9f4fae0c8fcb</archived-checksum>
+                            <encoding style="application/x-gzip" />
+                            <size>14</size>
+                            <offset>40</offset>
+                            <length>22</length>
+                        </data>
+                    </file>
+                </file>
+            </file>
+        </file>
+        <file id="9">
+            <name>file.txt</name>
+            <type>file</type>
+            <inode>13743523</inode>
+            <deviceno>16777220</deviceno>
+            <mode>0644</mode>
+            <uid>502</uid>
+            <user>hbakici</user>
+            <gid>20</gid>
+            <group>staff</group>
+            <atime>2013-10-21T16:44:15Z</atime>
+            <mtime>2013-10-18T14:41:00Z</mtime>
+            <ctime>2013-10-18T14:41:00Z</ctime>
+            <FinderCreateTime>
+                <time>1970-01-01T00:00:00</time>
+                <nanoseconds>0</nanoseconds>
+            </FinderCreateTime>
+            <data>
+                <extracted-checksum style="sha1">046c168df2244d3a13985f042a50e479fe56455e</extracted-checksum>
+                <archived-checksum style="sha1">5ddc4863d4626b26363b082999fe95a47fde761c</archived-checksum>
+                <encoding style="application/x-gzip" />
+                <size>5</size>
+                <offset>62</offset>
+                <length>13</length>
+            </data>
+        </file>
+    </toc>
 </xar>

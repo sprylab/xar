@@ -1,6 +1,5 @@
 package com.sprylab.xar.toc.model;
 
-
 import java.util.Date;
 
 import org.simpleframework.xml.Element;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.Deflater;
 
-import com.sprylab.xar.XarFile.Header;
+import com.sprylab.xar.XarHeader;
 import com.sprylab.xar.toc.ToCFactory;
 import com.sprylab.xar.toc.model.Checksum;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
@@ -38,7 +38,7 @@ public class XarWriter {
 
     private final List<File> files = new ArrayList<>();
 
-    private final List<XarSource> sources = new ArrayList<>();
+    private final List<XarEntrySource> sources = new ArrayList<>();
 
     private final Map<XarDirectory, File> dirMap = new HashMap<>();
 
@@ -75,11 +75,11 @@ public class XarWriter {
         this.currentOffset = checksumLength;
     }
 
-    public void addSource(final XarSource source) {
+    public void addSource(final XarEntrySource source) {
         addSource(source, null);
     }
 
-    public void addSource(final XarSource source, final XarDirectory parent) {
+    public void addSource(final XarEntrySource source, final XarDirectory parent) {
         sources.add(source);
         final File file = new File();
         file.setType(Type.FILE);
@@ -142,22 +142,24 @@ public class XarWriter {
     public void write(final OutputStream output) throws Exception {
         final Buffer buffer = new Buffer();
 
-        final Buffer tocBuffer = new Buffer();
-        ToCFactory.toOutputStream(toc, tocBuffer.outputStream());
-        tocBuffer.close();
-        final long tocBufferSize = tocBuffer.size();
+        final long tocBufferSize;
+        final Buffer tocCompressedBuffer;
+        try (final Buffer tocBuffer = new Buffer()) {
+            ToCFactory.toOutputStream(toc, tocBuffer.outputStream());
+            tocBufferSize = tocBuffer.size();
 
-        final Buffer tocCompressedBuffer = new Buffer();
+            tocCompressedBuffer = new Buffer();
 
-        try (final Sink deflaterSink = new DeflaterSink(tocCompressedBuffer, new Deflater(Deflater.BEST_COMPRESSION))) {
-            deflaterSink.write(tocBuffer, tocBuffer.size());
+            try (final Sink deflaterSink = new DeflaterSink(tocCompressedBuffer, new Deflater(Deflater.BEST_COMPRESSION))) {
+                deflaterSink.write(tocBuffer, tocBuffer.size());
+            }
         }
 
         final long tocCompressedBufferSize = tocCompressedBuffer.size();
 
         final ByteString tocCompressedBufferHash = HashUtils.hash(tocCompressedBuffer, checksumAlgorithm);
 
-        buffer.write(Header.createHeader(tocCompressedBufferSize, tocBufferSize, checksumAlgorithm));
+        buffer.write(XarHeader.createHeader(tocCompressedBufferSize, tocBufferSize, checksumAlgorithm));
 
         buffer.writeAll(tocCompressedBuffer);
 
@@ -165,7 +167,7 @@ public class XarWriter {
             buffer.write(tocCompressedBufferHash);
         }
 
-        for (final XarSource xs : sources) {
+        for (final XarEntrySource xs : sources) {
             try (final BufferedSource source = Okio.buffer(xs.getSource())) {
                 buffer.writeAll(source);
             }
