@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 0.9.5
+-------------
+
+* fix resource flushing and cleanup when adding files to xar archives
+
 Version 0.9.4
 -------------
 
