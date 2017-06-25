@@ -42,24 +42,24 @@ public class XarFileSource implements XarSource {
         this.file = file;
         this.encoding = encoding;
         this.checksumStyle = checksumStyle;
-        final BufferedSource fileSource = Okio.buffer(Okio.source(file));
-        fileSource.require(file.length());
-        this.extractedChecksum = HashUtils.hashHex(fileSource, checksumStyle);
-        switch (encoding) {
-            case NONE:
-                this.buffer.writeAll(fileSource);
-                this.archivedChecksum = extractedChecksum;
-                break;
-            case GZIP:
-                try (BufferedSource input = Okio.buffer(Okio.source(file));
-                     BufferedSink output = Okio.buffer(new DeflaterSink(this.buffer, new Deflater()))) {
-                    output.writeAll(input);
-                    output.close();
-                    this.archivedChecksum = HashUtils.hashHex(this.buffer, checksumStyle);
-                }
-                break;
-            case BZIP2:
-                throw new UnsupportedEncodingException("Encoding not supported: " + encoding.name());
+        try (final BufferedSource fileSource = Okio.buffer(Okio.source(file))) {
+	        fileSource.require(file.length());
+	        this.extractedChecksum = HashUtils.hashHex(fileSource, checksumStyle);
+	        switch (encoding) {
+	            case NONE:
+	                this.buffer.writeAll(fileSource);
+	                this.archivedChecksum = extractedChecksum;
+	                break;
+	            case GZIP:
+	                try (BufferedSink output = Okio.buffer(new DeflaterSink(this.buffer, new Deflater()))) {
+	                    output.writeAll(fileSource);
+	                    output.close();
+	                    this.archivedChecksum = HashUtils.hashHex(this.buffer, checksumStyle);
+	                }
+	                break;
+	            case BZIP2:
+	                throw new UnsupportedEncodingException("Encoding not supported: " + encoding.name());
+	        }
         }
     }
 
