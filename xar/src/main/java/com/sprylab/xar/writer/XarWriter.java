@@ -149,7 +149,7 @@ public class XarWriter {
 
         final Buffer tocCompressedBuffer = new Buffer();
 
-        try (Sink deflaterSink = new DeflaterSink(tocCompressedBuffer, new Deflater())) {
+        try (final Sink deflaterSink = new DeflaterSink(tocCompressedBuffer, new Deflater(Deflater.BEST_COMPRESSION))) {
             deflaterSink.write(tocBuffer, tocBuffer.size());
         }
 
@@ -166,14 +166,14 @@ public class XarWriter {
         }
 
         for (final XarSource xs : sources) {
-            final BufferedSource source = Okio.buffer(xs.getSource());
-            buffer.writeAll(source);
-            source.close();
+            try (final BufferedSource source = Okio.buffer(xs.getSource())) {
+                buffer.writeAll(source);
+            }
         }
 
-        final Sink sink = Okio.sink(output);
-        buffer.readAll(sink);
-        sink.close();
+        try (final Sink sink = Okio.sink(output)) {
+            buffer.readAll(sink);
+        }
     }
 
 }

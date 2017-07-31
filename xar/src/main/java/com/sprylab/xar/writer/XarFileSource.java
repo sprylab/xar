@@ -51,11 +51,10 @@ public class XarFileSource implements XarSource {
 	                this.archivedChecksum = extractedChecksum;
 	                break;
 	            case GZIP:
-	                try (BufferedSink output = Okio.buffer(new DeflaterSink(this.buffer, new Deflater()))) {
+	                try (final BufferedSink output = Okio.buffer(new DeflaterSink(this.buffer, new Deflater(Deflater.BEST_COMPRESSION)))) {
 	                    output.writeAll(fileSource);
-	                    output.close();
-	                    this.archivedChecksum = HashUtils.hashHex(this.buffer, checksumStyle);
 	                }
+                    this.archivedChecksum = HashUtils.hashHex(this.buffer, checksumStyle);
 	                break;
 	            case BZIP2:
 	                throw new UnsupportedEncodingException("Encoding not supported: " + encoding.name());
