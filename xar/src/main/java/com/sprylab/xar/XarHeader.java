@@ -1,6 +1,5 @@
 package com.sprylab.xar;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -11,10 +10,9 @@ import org.joou.UShort;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 
 import okio.BufferedSource;
-import okio.Okio;
 
 /**
- * Describes the file header of an eXtensible ARchiver file
+ * Describes the file header of an eXtensible ARchiver file represented by a {@link XarSource}
  * (see <a href="https://github.com/mackyle/xar/wiki/xarformat#The_Header">specification</a>).
  */
 public class XarHeader {
@@ -66,16 +64,10 @@ public class XarHeader {
         return bb.array();
     }
 
-    public static XarHeader createHeader(final File file) throws XarException {
-        try (final BufferedSource source = Okio.buffer(Okio.source(file))) {
-            return new XarHeader(source);
-        } catch (final IOException e) {
-            throw new XarException("Error opening XarFile", e);
-        }
-    }
-
-    public XarHeader(final BufferedSource source) throws XarException {
+    public XarHeader(final XarSource xarSource) throws XarException {
         try {
+            final BufferedSource source = xarSource.getRange(0, HEADER_SIZE);
+
             this.magic = UInteger.valueOf(source.readInt());
             checkMagic();
 

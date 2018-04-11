@@ -1,6 +1,5 @@
 package com.sprylab.xar;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,13 +12,9 @@ import com.sprylab.xar.toc.model.ToC;
 import com.sprylab.xar.utils.FilePath;
 import com.sprylab.xar.utils.StringUtils;
 
-import okio.BufferedSource;
-import okio.Okio;
-
 /**
- * User: pschiffer
- * Date: 21.11.2016
- * Time: 21:55
+ * Describes the table of content of an eXtensible ARchiver file represented by a {@link XarSource}
+ * (see <a href="https://github.com/mackyle/xar/wiki/xarformat#The_Table_of_Contents">specification</a>).
  */
 public class XarToc {
 
@@ -28,20 +23,13 @@ public class XarToc {
     private final List<XarEntry> entries = new ArrayList<>();
 
     private final Map<String, XarEntry> nameToEntryMap = new HashMap<>();
+
     private final XarSource xarSource;
 
-    public static XarToc createToc(final XarSource file) throws XarException {
-        try (final BufferedSource source = Okio.buffer(file.getToCSource())) {
-            return new XarToc(file, source);
-        } catch (final IOException e) {
-            throw new XarException("Error opening XarFile", e);
-        }
-    }
-
-    public XarToc(final XarSource XarSource, final BufferedSource source) throws XarException {
-        try (final InputStream inputStream = source.inputStream()) {
+    public XarToc(final XarSource xarSource) throws XarException {
+        this.xarSource = xarSource;
+        try (final InputStream inputStream = xarSource.getToCStream()) {
             this.model = ToCFactory.fromInputStream(inputStream);
-            this.xarSource = XarSource;
             createEntries();
         } catch (final Exception e) {
             throw new XarException("Could not create toc", e);
@@ -57,7 +45,7 @@ public class XarToc {
         while (!fileStack.isEmpty()) {
             final FilePath currentFile = fileStack.pop();
             final com.sprylab.xar.toc.model.File fileEntry = currentFile.getFile();
-            final XarEntry xarEntry = XarEntry.createFromFile(this.xarSource, fileEntry, currentFile.getParentPath());
+            final XarEntry xarEntry = XarEntry.createFromXarSource(this.xarSource, fileEntry, currentFile.getParentPath());
 
             if (xarEntry.isDirectory()) {
                 final List<com.sprylab.xar.toc.model.File> children = fileEntry.getChildren();

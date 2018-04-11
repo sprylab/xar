@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class XarFileTest {
+public class FileXarSourceTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XarFileTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileXarSourceTest.class);
 
     private static final String TEST_XAR_NONE_FILE_NAME = "test_none.xar";
 
@@ -44,10 +44,10 @@ public class XarFileTest {
     @Before
     public void setUp() throws Exception {
         noneTestFile = TestUtil.getClasspathResourceAsFile(TEST_XAR_NONE_FILE_NAME);
-        noneXarSource = new XarFile(noneTestFile);
+        noneXarSource = new FileXarSource(noneTestFile);
 
         gzipTestFile = TestUtil.getClasspathResourceAsFile(TEST_XAR_GZIP_FILE_NAME);
-        gzipXarSource = new XarFile(gzipTestFile);
+        gzipXarSource = new FileXarSource(gzipTestFile);
     }
 
     @Test
@@ -184,13 +184,13 @@ public class XarFileTest {
     }
 
     @Test
-    public void testFileSize() {
+    public void testFileSize() throws Exception {
         assertEquals(noneTestFile.length(), noneXarSource.getSize());
         assertEquals(gzipTestFile.length(), gzipXarSource.getSize());
     }
 
     @Test
-    public void testExtractAllFiles() throws IOException, URISyntaxException {
+    public void testExtractAllFiles() throws Exception {
         for (final XarSource xarFile : getXarFiles()) {
             checkExtractAllFiles(xarFile, false);
             checkExtractAllFiles(xarFile, true);

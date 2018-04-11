@@ -26,7 +26,7 @@ import okio.Okio;
 import okio.Source;
 
 /**
- * Represents an entry in a {@link XarFile}.
+ * Represents an entry in a {@link XarSource}.
  * <p>
  * An entry may correspond to a directory or a file when extracted (see {@link #isDirectory()}).
  */
@@ -69,13 +69,14 @@ public class XarEntry {
     /**
      * Creates a new entry linked to the given {@code xarSource}.
      *
-     * @param xarSource  the {@link XarFile} this entry is linked to
+     * @param xarSource  the {@link XarSource} this entry is linked to
      * @param file       the corresponding file model
      * @param parentPath the path of the parent directory, may be {@code null}
      * @return the newly created entry
+     * @throws XarException when there is an error while reading
      */
-    public static XarEntry createFromFile(final XarSource xarSource, final com.sprylab.xar.toc.model.File file,
-                                          final String parentPath) throws XarException {
+    public static XarEntry createFromXarSource(final XarSource xarSource, final com.sprylab.xar.toc.model.File file,
+                                               final String parentPath) throws XarException {
         final XarEntry xarEntry = new XarEntry();
         xarEntry.id = file.getId();
 
@@ -119,6 +120,10 @@ public class XarEntry {
         return xarEntry;
     }
 
+    private XarEntry() {
+        // protected constructor
+    }
+
     /**
      * @return the ID of this entry
      */
@@ -127,7 +132,7 @@ public class XarEntry {
     }
 
     /**
-     * @return the name of this entry - this corresponds to the path of this entry inside the {@link XarFile}
+     * @return the name of this entry - this corresponds to the path of this entry inside the {@link XarSource}
      */
     public String getName() {
         return name;

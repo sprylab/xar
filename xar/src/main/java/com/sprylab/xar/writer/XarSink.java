@@ -26,7 +26,7 @@ import okio.DeflaterSink;
 import okio.Okio;
 import okio.Sink;
 
-public class XarWriter {
+public class XarSink {
 
     private static final long CHECKSUM_LENGTH_MD5 = 16L;
 
@@ -46,11 +46,11 @@ public class XarWriter {
 
     private int id;
 
-    public XarWriter() {
+    public XarSink() {
         this(ChecksumAlgorithm.SHA1);
     }
 
-    public XarWriter(final ChecksumAlgorithm checksumAlgorithm) {
+    public XarSink(final ChecksumAlgorithm checksumAlgorithm) {
         this.checksumAlgorithm = checksumAlgorithm;
         final long checksumLength;
         switch (checksumAlgorithm) {

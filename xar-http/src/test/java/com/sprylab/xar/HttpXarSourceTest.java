@@ -186,6 +186,12 @@ public class HttpXarSourceTest {
     }
 
     @Test
+    public void testFileSize() throws Exception {
+        assertEquals(getResourceAsByteArray(TEST_XAR_NONE_FILE_NAME).length, noneXarSource.getSize());
+        assertEquals(getResourceAsByteArray(TEST_XAR_GZIP_FILE_NAME).length, gzipXarSource.getSize());
+    }
+
+    @Test
     public void testExtractAllFiles() throws IOException, URISyntaxException {
         for (final XarSource xarFile : getXarFiles()) {
             checkExtractAllFiles(xarFile, false);
@@ -276,28 +282,34 @@ public class HttpXarSourceTest {
                 if (file == null || !file.exists()) {
                     return mockResponse.setResponseCode(404);
                 }
-                final Buffer buffer = new Buffer();
-                final String range = recordedRequest.getHeader("Range");
-                final BufferedSource source = Okio.buffer(Okio.source(file));
-                if (range != null) {
-                    // Partial file
-                    final Matcher matcher = PATTERN_RANGE_HEADER.matcher(range);
-                    if (matcher.matches()) {
-                        final Integer start = Integer.valueOf(matcher.group(1));
-                        final Integer end = Integer.valueOf(matcher.group(2));
-                        source.skip(start);
-                        source.readFully(buffer, end - start + 1);
+
+                if (recordedRequest.getMethod().equals("HEAD")) {
+                    return mockResponse.setHeader("Content-Length", file.length());
+                } else if (recordedRequest.getMethod().equals("GET")) {
+                    final Buffer buffer = new Buffer();
+                    final String range = recordedRequest.getHeader("Range");
+                    final BufferedSource source = Okio.buffer(Okio.source(file));
+                    if (range != null) {
+                        // Partial file
+                        final Matcher matcher = PATTERN_RANGE_HEADER.matcher(range);
+                        if (matcher.matches()) {
+                            final Integer start = Integer.valueOf(matcher.group(1));
+                            final Integer end = Integer.valueOf(matcher.group(2));
+                            source.skip(start);
+                            source.readFully(buffer, end - start + 1);
+                        } else {
+                            // Full file
+                            source.readAll(buffer);
+                        }
                     } else {
                         // Full file
                         source.readAll(buffer);
                     }
-                } else {
-                    // Full file
-                    source.readAll(buffer);
-                }
-                mockResponse.setBody(buffer);
 
-                return mockResponse;
+                    return mockResponse.setBody(buffer);
+                }
+
+                return mockResponse.setResponseCode(500);
             } catch (final Exception e) {
                 throw new RuntimeException(e);
             }

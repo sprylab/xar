@@ -2,29 +2,49 @@ package com.sprylab.xar;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sprylab.xar.toc.model.Encoding;
 
+import okio.BufferedSource;
+import okio.InflaterSource;
+import okio.Okio;
 import okio.Source;
 
 public abstract class XarSource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XarFile.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XarSource.class);
 
     static boolean DEBUG;
 
+    private XarHeader header;
+
+    private XarToc toc;
+
     /**
-     * @return the {@link XarHeader} of this file
+     * @return the {@link XarHeader} of this source
+     * @throws XarException when there is an error while reading
      */
-    public abstract XarHeader getHeader() throws XarException;
+    public XarHeader getHeader() throws XarException {
+        ensureHeader();
+        return header;
+    }
 
-    public abstract XarToc getToc() throws XarException;
-
-    public abstract Source getRange(long offset, long length) throws IOException;
+    /**
+     *
+     * @return the {@link XarToc} of this source
+     * @throws XarException when there is an error while reading
+     */
+    public XarToc getToc() throws XarException {
+        ensureHeader();
+        ensureToc();
+        return toc;
+    }
 
     /**
      * Gets access to the underlying byte data of this file's table of content.
@@ -34,36 +54,73 @@ public abstract class XarSource {
      * @return the {@link Source} to read the table of contents from
      * @throws IOException when an I/O error occurred while reading
      */
-    public abstract Source getToCSource() throws IOException;
+    public BufferedSource getToCSource() throws IOException {
+        final long headerSize = getHeader().getSize().longValue();
+        final long compressedTocSize = getHeader().getTocLengthCompressed().longValue();
+        return Okio.buffer(new InflaterSource(getRange(headerSize, compressedTocSize), new Inflater()));
+    }
 
     /**
-     * @return the size of this files in bytes.
-     * @see File#length()
+     * Gets access to the underlying byte data of this file's table of content as an {@link InputStream}.
+     *
+     * @return an (uncompressed) {@link InputStream} to read the table of contents from
+     * @throws IOException when an I/O error occurred while reading
      */
-    public abstract long getSize();
+    public InputStream getToCStream() throws IOException {
+        return Okio.buffer(getToCSource()).inputStream();
+    }
+
+    /**
+     * Creates a limited {@link BufferedSource} accessing the raw binary data from this file.
+     * Use {@link #getEntry(String)} or {@link #extractAll(File, boolean, OnEntryExtractedListener)} for structured access.
+     *
+     * @param offset the offset to start
+     * @param length the number of bytes to read counting from offset
+     * @return a {@link BufferedSource} for accessing {@code file} constrained to {@code offset} and {@code length}
+     * @throws IOException when an I/O error occurred while reading or opening the file
+     */
+    public abstract BufferedSource getRange(long offset, long length) throws IOException;
+
+    /**
+     * Gets the file size in bytes.
+     *
+     * @return the size in bytes
+     *
+     * @throws XarException when there is an error while reading
+     */
+    public abstract long getSize() throws XarException;
 
     /**
      * Gets all {@link XarEntry}s contained in this file.
      *
      * @return a list of all {@link XarEntry}s
+     * @throws XarException when there is an error while reading
      */
-    public abstract List<XarEntry> getEntries() throws XarException;
+    public List<XarEntry> getEntries() throws XarException {
+        return getToc().getEntries();
+    }
 
     /**
      * Retrieves exactly the entry denoted by {@code entryName} or {@code null} if such an entry does not exist.
      *
      * @param entryName the name of the entry, e.g. {@code my-file.txt} or {@code directory/sub-directory/image.png}
      * @return the corresponding {@link XarEntry} or {@code null} if it does not exist
+     * @throws XarException when there is an error while reading
      */
-    public abstract XarEntry getEntry(String entryName) throws XarException;
+    public XarEntry getEntry(final String entryName) throws XarException {
+        return getToc().getEntry(entryName);
+    }
 
     /**
      * Checks if an entry denoted by {@code entryName} exists in this file.
      *
      * @param entryName the name of the entry, e.g. {@code my-file.txt} or {@code directory/sub-directory/image.png}
      * @return {@code true} if it does exist, {@code false} otherwise
+     * @throws XarException when there is an error while reading
      */
-    public abstract boolean hasEntry(String entryName) throws XarException;
+    public boolean hasEntry(final String entryName) throws XarException {
+        return getToc().hasEntry(entryName);
+    };
 
     /**
      * Convenience method for extracting all files bypassing integrity check.
@@ -107,6 +164,48 @@ public abstract class XarSource {
                 entry.extract(directory, verifyIntegrity, listener);
             }
         }
+    }
+
+    /**
+     * Creates the {@link XarToc} if necessary.
+     *
+     * @throws XarException when there is an error while reading
+     */
+    private void ensureToc() throws XarException {
+        if (toc == null) {
+            toc = createToc();
+        }
+    }
+
+    /**
+     * Creates the {@link XarHeader} if necessary.
+     *
+     * @throws XarException when there is an error while reading
+     */
+    private void ensureHeader() throws XarException {
+        if (header == null) {
+            header = createHeader();
+        }
+    }
+
+    /**
+     * Creates the {@link XarToc}.
+     *
+     * @return the corresponding {@link XarToc}
+     * @throws XarException when there is an error while reading
+     */
+    private XarToc createToc() throws XarException {
+        return new XarToc(this);
+    }
+
+    /**
+     * Creates the {@link XarHeader}.
+     *
+     * @return the corresponding {@link XarHeader}
+     * @throws XarException when there is an error while reading
+     */
+    private XarHeader createHeader() throws XarException {
+        return new XarHeader(this);
     }
 
     /**

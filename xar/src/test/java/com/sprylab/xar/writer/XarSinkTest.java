@@ -10,15 +10,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sprylab.xar.FileXarSource;
 import com.sprylab.xar.TestUtil;
 import com.sprylab.xar.XarEntry;
-import com.sprylab.xar.XarFile;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 import com.sprylab.xar.toc.model.Encoding;
 
-public class XarWriterTest {
+public class XarSinkTest {
 
-    private XarWriter xarWriter;
+    private XarSink xarSink;
 
     private File tempDirectory;
 
@@ -26,7 +26,7 @@ public class XarWriterTest {
 
     @Before
     public void setUp() {
-        xarWriter = new XarWriter();
+        xarSink = new XarSink();
         tempDirectory = TestUtil.getTempDirectory();
         archiveFile = new File(tempDirectory, "test.xar");
     }
@@ -41,14 +41,14 @@ public class XarWriterTest {
         final File fileToCompress = TestUtil.getClasspathResourceAsFile("unpacked/file.txt");
 
         final XarFileSource fileSource = new XarFileSource(fileToCompress);
-        xarWriter.addSource(fileSource);
+        xarSink.addSource(fileSource);
 
-        xarWriter.write(FileUtils.openOutputStream(archiveFile));
+        xarSink.write(FileUtils.openOutputStream(archiveFile));
 
         assertThat(archiveFile).exists();
 
-        final XarFile xarFile = new XarFile(archiveFile);
-        final XarEntry entry = xarFile.getEntry("file.txt");
+        final FileXarSource fileXarSource = new FileXarSource(archiveFile);
+        final XarEntry entry = fileXarSource.getEntry("file.txt");
         assertThatEntryEqualsFile(entry, fileToCompress);
     }
 
@@ -57,14 +57,14 @@ public class XarWriterTest {
         final File fileToCompress = TestUtil.getClasspathResourceAsFile("unpacked/file.txt");
 
         final XarFileSource fileSource = new XarFileSource(fileToCompress, Encoding.GZIP, ChecksumAlgorithm.SHA1);
-        xarWriter.addSource(fileSource);
+        xarSink.addSource(fileSource);
 
-        xarWriter.write(FileUtils.openOutputStream(archiveFile));
+        xarSink.write(FileUtils.openOutputStream(archiveFile));
 
         assertThat(archiveFile).exists();
 
-        final XarFile xarFile = new XarFile(archiveFile);
-        final XarEntry entry = xarFile.getEntry("file.txt");
+        final FileXarSource fileXarSource = new FileXarSource(archiveFile);
+        final XarEntry entry = fileXarSource.getEntry("file.txt");
         assertThatEntryEqualsFile(entry, fileToCompress);
     }
 
@@ -73,17 +73,17 @@ public class XarWriterTest {
         final File fileToCompress = TestUtil.getClasspathResourceAsFile("unpacked/file.txt");
 
         final XarDirectory xarDirectory = new XarSimpleDirectory("parent");
-        xarWriter.addDirectory(xarDirectory, null);
+        xarSink.addDirectory(xarDirectory, null);
 
         final XarFileSource fileSource = new XarFileSource(fileToCompress);
-        xarWriter.addSource(fileSource, xarDirectory);
+        xarSink.addSource(fileSource, xarDirectory);
 
-        xarWriter.write(FileUtils.openOutputStream(archiveFile));
+        xarSink.write(FileUtils.openOutputStream(archiveFile));
 
         assertThat(archiveFile).exists();
 
-        final XarFile xarFile = new XarFile(archiveFile);
-        final XarEntry entry = xarFile.getEntry("parent/file.txt");
+        final FileXarSource fileXarSource = new FileXarSource(archiveFile);
+        final XarEntry entry = fileXarSource.getEntry("parent/file.txt");
         assertThatEntryEqualsFile(entry, fileToCompress);
     }
 

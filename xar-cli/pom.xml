@@ -28,6 +28,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>xar</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>xar-http</artifactId>
+        </dependency>
 
         <!-- Commons CLI -->
         <dependency>

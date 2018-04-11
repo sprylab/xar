@@ -4,7 +4,7 @@ xar for Java
 A Java library for reading and writing eXtensible ARchiver files by [sprylab technologies GmbH][1].
 
 Work-in-progress note
---------
+---------------------
 
 This is the public preview version. It works for us, but it still has some rough
 corners and thus lacks consistent code style, sufficient unit tests and complete documentation.
@@ -20,7 +20,13 @@ Usage
 Open a .xar file:
 
 ```
-XarFile xar = new XarFile(new File("my-file.xar"));
+XarSource xar = new XarFile(new File("my-file.xar"));
+```
+
+Open a .xar file from URL (needs `xar-http` module):
+
+```
+XarSource xar = new HttpXarSource("https://example.com/files/my-file.xar");
 ```
 
 Extract a .xar file:
@@ -73,13 +79,26 @@ or Gradle:
 compile 'com.sprylab.xar:xar:0.9.5'
 ```
 
+If you need to access files via HTTP, add the `xar-http` module as a dependency, too:
+```xml
+<dependency>
+  <groupId>com.sprylab.xar</groupId>
+  <artifactId>xar-http</artifactId>
+  <version>0.9.5</version>
+</dependency>
+```
+or Gradle:
+```groovy
+compile 'com.sprylab.xar:xar-http:0.9.5'
+```
+
 There is also a CLI version, which mimics the behavior of the original C executable.
 Download [the latest standalone-JAR][3] (all dependencies included) for direct use at the command line.
 
 License
 =======
 
-    Copyright 2013-2016 sprylab technologies GmbH
+    Copyright 2013-2018 sprylab technologies GmbH
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

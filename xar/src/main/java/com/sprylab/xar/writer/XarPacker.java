@@ -27,7 +27,7 @@ public class XarPacker {
 
     private final File destFile;
 
-    private final XarWriter writer;
+    private final XarSink sink;
 
     /**
      * Creates a new {@link XarPacker}, which will write to {@code archiveFile}.
@@ -39,7 +39,7 @@ public class XarPacker {
         if (destFile.exists()) {
             destFile.delete();
         }
-        writer = new XarWriter();
+        sink = new XarSink();
     }
 
     /**
@@ -55,7 +55,7 @@ public class XarPacker {
         XarDirectory root = null;
         if (asSubFolder) {
             root = new XarSimpleDirectory(folder.getName());
-            writer.addDirectory(root, null);
+            sink.addDirectory(root, null);
         }
         addDirectoryContent(folder, root, packedExtensions == null ? DEFAULT_PACK_EXTENSIONS : null);
     }
@@ -73,12 +73,12 @@ public class XarPacker {
         for (final File file : folder.listFiles()) {
             if (file.isDirectory()) {
                 final XarDirectory dir = new XarSimpleDirectory(file.getName());
-                writer.addDirectory(dir, parent);
+                sink.addDirectory(dir, parent);
                 addDirectoryContent(file, dir, packedExtensions);
             } else {
                 final boolean compress = packedExtensions.contains(StringUtils.substringAfterLast(file.getName(), "."));
                 final XarEntrySource source = new XarFileSource(file, compress ? Encoding.GZIP : Encoding.NONE);
-                writer.addSource(source, parent);
+                sink.addSource(source, parent);
             }
         }
     }
@@ -86,11 +86,11 @@ public class XarPacker {
     /**
      * Creates the archive file and writes every entry to it.
      *
-     * @throws Exception
+     * @throws Exception if an error occurred
      */
     public void write() throws Exception {
         try (final FileOutputStream fos = new FileOutputStream(destFile)) {
-            writer.write(fos);
+            sink.write(fos);
         }
     }
 
