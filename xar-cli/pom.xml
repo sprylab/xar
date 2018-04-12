@@ -47,12 +47,6 @@
             <version>${jcabi-manifests.version}</version>
         </dependency>
 
-        <!-- Commons IO -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
         <!-- SLF4J SimpleLogger -->
         <dependency>
             <groupId>org.slf4j</groupId>

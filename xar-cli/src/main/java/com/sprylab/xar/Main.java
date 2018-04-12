@@ -24,7 +24,7 @@ import com.sprylab.xar.writer.XarPacker;
 /**
  * @author rzimmer
  */
-public class Main {
+public final class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
@@ -225,6 +225,10 @@ public class Main {
     private static void printVersion() {
         LOG.info("xar {}", Manifests.read(VERSION_MANIFEST_KEY));
         LOG.info("This is a port to pure Java.");
+    }
+
+    private Main() {
+        // protected constructor
     }
 
 }
