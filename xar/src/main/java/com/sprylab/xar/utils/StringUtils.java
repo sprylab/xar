@@ -7,12 +7,14 @@ public final class StringUtils {
 
     /**
      * The empty String {@code ""}.
+     *
      * @since 2.0
      */
     public static final String EMPTY = "";
 
     /**
      * Represents a failed index search.
+     *
      * @since 2.1
      */
     public static final int INDEX_NOT_FOUND = -1;
@@ -35,7 +37,7 @@ public final class StringUtils {
      * It no longer trims the CharSequence.
      * That functionality is available in isBlank().</p>
      *
-     * @param cs  the CharSequence to check, may be null
+     * @param cs the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is empty or null
      * @since 3.0 Changed signature from isEmpty(String) to isEmpty(CharSequence)
      */
@@ -54,14 +56,13 @@ public final class StringUtils {
      * StringUtils.isNotEmpty("  bob  ") = true
      * </pre>
      *
-     * @param cs  the CharSequence to check, may be null
+     * @param cs the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is not empty and not null
      * @since 3.0 Changed signature from isNotEmpty(String) to isNotEmpty(CharSequence)
      */
     public static boolean isNotEmpty(final CharSequence cs) {
         return !isEmpty(cs);
     }
-
 
     /**
      * <p>Gets the substring after the last occurrence of a separator.
@@ -86,10 +87,10 @@ public final class StringUtils {
      * StringUtils.substringAfterLast("a", "z")     = ""
      * </pre>
      *
-     * @param str  the String to get a substring from, may be null
-     * @param separator  the String to search for, may be null
+     * @param str       the String to get a substring from, may be null
+     * @param separator the String to search for, may be null
      * @return the substring after the last occurrence of the separator,
-     *  {@code null} if null String input
+     * {@code null} if null String input
      * @since 2.0
      */
     public static String substringAfterLast(final String str, final String separator) {

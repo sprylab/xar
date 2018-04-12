@@ -3,7 +3,7 @@ package com.sprylab.xar;
 import java.io.IOException;
 
 /**
- * Exception that gets thrown if there is an error with an {@link XarFile}.
+ * Exception that gets thrown if there is an error with an {@link XarSource}.
  */
 public class XarException extends IOException {
 

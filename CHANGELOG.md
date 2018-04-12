@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+Version 0.9.6
+-------------
+
+* add optional `xar-http` module for accessing xar archives over HTTP; CLI supports local files and URLs as `-f` argument now (#9)
+* some refactoring and cleanup (breaking change: `XarFie` renamed to `FileXarSource`)
+* add some missing JavaDoc
+* updated to newest dependencies
+* set Java compiler source and target to 1.8
+
 Version 0.9.5
 -------------
 

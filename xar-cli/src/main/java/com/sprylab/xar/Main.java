@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.jcabi.manifests.Manifests;
 import com.sprylab.xar.toc.ToCFactory;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
+import com.sprylab.xar.utils.StringUtils;
 import com.sprylab.xar.writer.XarPacker;
 
 /**
@@ -71,10 +72,12 @@ public class Main {
             final CommandLine line = parser.parse(options, args);
 
             if (line.hasOption(F_OPTION)) {
-                final File archiveFile = new File(line.getOptionValue(F_OPTION));
+                final String fileOrUrl = line.getOptionValue(F_OPTION);
                 final List<String> argList = line.getArgList();
 
                 if (line.hasOption(C_OPTION)) {
+                    final File archiveFile = new File(fileOrUrl);
+
                     final XarPacker packer = new XarPacker(archiveFile);
                     for (final String additionalArgument : argList) {
                         final File fileToAdd = new File(additionalArgument);
@@ -88,7 +91,12 @@ public class Main {
                     }
                     packer.write();
                 } else {
-                    final XarFile xarFile = new XarFile(archiveFile);
+                    final XarSource xarSource;
+                    if (StringUtils.isNotEmpty(fileOrUrl) && fileOrUrl.startsWith("http")) {
+                        xarSource = new HttpXarSource(fileOrUrl);
+                    } else {
+                        xarSource = new FileXarSource(new File(fileOrUrl));
+                    }
 
                     if (line.hasOption(X_OPTION)) {
 
@@ -98,15 +106,15 @@ public class Main {
                         } else {
                             destination = new File(argList.get(0));
                         }
-                        XarFile.DEBUG = line.hasOption(V_OPTION);
-                        extractFiles(xarFile, destination);
+                        XarSource.DEBUG = line.hasOption(V_OPTION);
+                        extractFiles(xarSource, destination);
                     } else if (line.hasOption(T_OPTION)) {
-                        listEntries(xarFile);
+                        listEntries(xarSource);
                     } else if (line.hasOption(DUMP_HEADER_OPTION)) {
-                        dumpHeader(xarFile);
+                        dumpHeader(xarSource);
                     } else if (line.hasOption(DUMP_TOC_OPTION)) {
                         final File tocFile = new File(line.getOptionValue(DUMP_TOC_OPTION));
-                        dumpToC(xarFile, tocFile);
+                        dumpToC(xarSource, tocFile);
                     } else {
                         printHelp(options);
                     }
@@ -130,19 +138,19 @@ public class Main {
         return System.getProperty("user.dir");
     }
 
-    private static void extractFiles(final XarFile xarFile, final File destinationDir) throws IOException {
-        xarFile.extractAll(destinationDir, false);
+    private static void extractFiles(final XarSource xarSource, final File destinationDir) throws IOException {
+        xarSource.extractAll(destinationDir, false);
     }
 
-    private static void listEntries(final XarFile xarfile) {
-        final List<XarEntry> entries = xarfile.getEntries();
+    private static void listEntries(final XarSource xarSource) throws XarException {
+        final List<XarEntry> entries = xarSource.getEntries();
         for (final XarEntry entry : entries) {
             LOG.info(entry.toString());
         }
     }
 
-    private static void dumpHeader(final XarFile xarFile) {
-        final XarFile.Header header = xarFile.getHeader();
+    private static void dumpHeader(final XarSource xarSource) throws XarException {
+        final XarHeader header = xarSource.getHeader();
 
         final String headerStatus = header.hasValidMagic() ? "OK" : "INVALID";
 
@@ -155,9 +163,9 @@ public class Main {
         LOG.info("Checksum algorithm:      {} ({})", cksumAlg, ChecksumAlgorithm.values()[cksumAlg].toString().toLowerCase());
     }
 
-    private static void dumpToC(final XarFile xarFile, final File tocFile) {
+    private static void dumpToC(final XarSource xarSource, final File tocFile) {
         try {
-            ToCFactory.copy(xarFile.getToCStream(), new FileOutputStream(tocFile));
+            ToCFactory.copy(xarSource.getToCStream(), new FileOutputStream(tocFile));
         } catch (final Exception e) {
             LOG.error("Failed dumping header.", e);
         }

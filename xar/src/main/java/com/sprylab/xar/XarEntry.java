@@ -7,24 +7,26 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.Inflater;
 
+import com.sprylab.xar.XarSource.OnEntryExtractedListener;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 import com.sprylab.xar.toc.model.Data;
 import com.sprylab.xar.toc.model.Encoding;
 import com.sprylab.xar.toc.model.SimpleChecksum;
 import com.sprylab.xar.toc.model.Type;
-import com.sprylab.xar.utils.FileAccessUtils;
 import com.sprylab.xar.utils.HashUtils;
 import com.sprylab.xar.utils.StringUtils;
 
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.BufferedSource;
+import okio.InflaterSource;
 import okio.Okio;
 import okio.Source;
 
 /**
- * Represents an entry in a {@link XarFile}.
+ * Represents an entry in a {@link XarSource}.
  * <p>
  * An entry may correspond to a directory or a file when extracted (see {@link #isDirectory()}).
  */
@@ -62,18 +64,19 @@ public class XarEntry {
 
     private Encoding encoding;
 
-    private XarFile xarFile;
+    private XarSource xarSource;
 
     /**
-     * Creates a new entry linked to the given {@code xarFile}.
+     * Creates a new entry linked to the given {@code xarSource}.
      *
-     * @param xarFile    the {@link XarFile} this entry is linked to
+     * @param xarSource  the {@link XarSource} this entry is linked to
      * @param file       the corresponding file model
      * @param parentPath the path of the parent directory, may be {@code null}
      * @return the newly created entry
+     * @throws XarException when there is an error while reading
      */
-    public static XarEntry createFromFile(final XarFile xarFile, final com.sprylab.xar.toc.model.File file,
-                                          final String parentPath) {
+    public static XarEntry createFromXarSource(final XarSource xarSource, final com.sprylab.xar.toc.model.File file,
+                                               final String parentPath) throws XarException {
         final XarEntry xarEntry = new XarEntry();
         xarEntry.id = file.getId();
 
@@ -89,7 +92,7 @@ public class XarEntry {
         xarEntry.gid = file.getGid();
         xarEntry.group = file.getGroup();
         xarEntry.time = file.getMtime();
-        xarEntry.xarFile = xarFile;
+        xarEntry.xarSource = xarSource;
 
         final Data data = file.getData();
         if (data != null) {
@@ -108,13 +111,17 @@ public class XarEntry {
                 xarEntry.checksum = null;
             }
             xarEntry.size = data.getSize();
-            final XarFile.Header header = xarFile.getHeader();
+            final XarHeader header = xarSource.getHeader();
             xarEntry.offset = header.getSize().longValue() + header.getTocLengthCompressed().longValue() + data.getOffset();
             xarEntry.length = data.getLength();
             xarEntry.encoding = data.getEncoding();
         }
 
         return xarEntry;
+    }
+
+    private XarEntry() {
+        // protected constructor
     }
 
     /**
@@ -125,7 +132,7 @@ public class XarEntry {
     }
 
     /**
-     * @return the name of this entry - this corresponds to the path of this entry inside the {@link XarFile}
+     * @return the name of this entry - this corresponds to the path of this entry inside the {@link XarSource}
      */
     public String getName() {
         return name;
@@ -213,7 +220,7 @@ public class XarEntry {
      *
      * @param childEntry the child to add
      */
-    void addChild(final XarEntry childEntry) {
+    public void addChild(final XarEntry childEntry) {
         if (children == null) {
             children = new ArrayList<>();
         }
@@ -244,9 +251,9 @@ public class XarEntry {
 
         switch (encoding) {
             case NONE:
-                return FileAccessUtils.createLimitedBufferedSource(xarFile.getFile(), offset, length);
+                return xarSource.getRange(offset, length);
             case GZIP:
-                return FileAccessUtils.createLimitedInflaterSource(xarFile.getFile(), offset, length);
+                return new InflaterSource(xarSource.getRange(offset, length), new Inflater());
             case BZIP2:
                 // fall through
             default:
@@ -307,10 +314,11 @@ public class XarEntry {
      * @param listener        the listener that gets notified after the entry was extracted (successfully or not)
      * @throws IOException when an I/O error occurred while extracting
      */
-    public void extract(final File fileOrDirectory, final boolean verifyIntegrity, final OnEntryExtractedListener listener) throws IOException {
+    public void extract(final File fileOrDirectory, final boolean verifyIntegrity, final OnEntryExtractedListener listener)
+        throws IOException {
         if (isDirectory) {
             // get all files inside me
-            final List<XarEntry> entries = xarFile.getEntries();
+            final List<XarEntry> entries = xarSource.getToc().getEntries();
             final String directoryPath = name.concat("/");
 
             final List<XarEntry> files = new ArrayList<>();
@@ -335,8 +343,10 @@ public class XarEntry {
             }
             targetFile.getParentFile().mkdirs();
 
-            try (Source source = getSource(); BufferedSink sink = Okio.buffer(Okio.sink(targetFile))) {
-                sink.writeAll(source);
+            try (final Source source = getSource()) {
+                try (final BufferedSink sink = Okio.buffer(Okio.sink(targetFile))) {
+                    sink.writeAll(source);
+                }
             } finally {
                 if (verifyIntegrity) {
                     verifyExtractedFile(targetFile);
@@ -368,16 +378,4 @@ public class XarEntry {
         return getName();
     }
 
-    /**
-     * Listens for {@link XarEntry} extraction events.
-     */
-    public interface OnEntryExtractedListener {
-
-        /**
-         * Gets called after a {@link XarEntry} was extracted.
-         *
-         * @param entry the extracted {@link XarEntry}
-         */
-        void onEntryExtracted(final XarEntry entry);
-    }
 }
