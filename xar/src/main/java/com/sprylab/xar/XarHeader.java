@@ -65,9 +65,7 @@ public class XarHeader {
     }
 
     public XarHeader(final XarSource xarSource) throws XarException {
-        try {
-            final BufferedSource source = xarSource.getRange(0, HEADER_SIZE);
-
+        try (final BufferedSource source = xarSource.getRange(0, HEADER_SIZE)) {
             this.magic = UInteger.valueOf(source.readInt());
             checkMagic();
 

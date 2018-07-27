@@ -3,6 +3,8 @@ package com.sprylab.xar;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -164,8 +166,10 @@ public final class Main {
     }
 
     private static void dumpToC(final XarSource xarSource, final File tocFile) {
-        try {
-            ToCFactory.copy(xarSource.getToCStream(), new FileOutputStream(tocFile));
+        try (final InputStream toCStream = xarSource.getToCStream()) {
+            try (final OutputStream os = new FileOutputStream(tocFile)) {
+                ToCFactory.copy(toCStream, os);
+            }
         } catch (final Exception e) {
             LOG.error("Failed dumping header.", e);
         }
