@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 0.9.7
+-------------
+
+* fix RandomAccessFileSource in FileXarSource#getRange is not closed (#11 - thanks to @hameno)
+
 Version 0.9.6
 -------------
 
