@@ -16,11 +16,10 @@
         <!-- Dependency versions -->
         <simple-xml.version>2.7.1</simple-xml.version>
         <okio.version>1.14.0</okio.version>
-        <joou.version>0.9.3</joou.version>
+        <joou.version>0.9.4</joou.version>
 
         <!-- Test dependency versions -->
         <junit.version>4.12</junit.version>
-        <assertj-core.version>2.8.0</assertj-core.version>
         <commons-codec.version>1.10</commons-codec.version>
         <commons-lang3.version>3.6</commons-lang3.version>
     </properties>
