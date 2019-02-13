@@ -79,6 +79,7 @@ public class HttpXarSource extends XarSource {
             if (response.isSuccessful()) {
                 return Okio.buffer(response.body().source());
             } else {
+                response.close();
                 throw new IOException(String.format("Error executing request: %d %s", response.code(), response.message()));
             }
         } catch (final IOException e) {
