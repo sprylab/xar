@@ -36,7 +36,7 @@ public class FileXarSource extends XarSource {
 
     @Override
     public String toString() {
-        return file.getAbsolutePath();
+        return String.format("FileXarSource{file=%s}", file.getAbsolutePath());
     }
 
     /**

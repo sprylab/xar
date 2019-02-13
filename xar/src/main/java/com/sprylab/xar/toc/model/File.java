@@ -45,7 +45,7 @@ public class File {
     private Date ctime;
 
     @ElementList(inline = true, required = false, name = "file")
-    private List<File> childs;
+    private List<File> children;
 
     @Element(required = false)
     private Data data;
@@ -151,11 +151,11 @@ public class File {
     }
 
     public List<File> getChildren() {
-        return childs;
+        return children;
     }
 
-    public void setChildren(final List<File> childs) {
-        this.childs = childs;
+    public void setChildren(final List<File> children) {
+        this.children = children;
     }
 
     public Data getData() {

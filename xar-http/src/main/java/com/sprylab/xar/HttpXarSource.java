@@ -56,7 +56,7 @@ public class HttpXarSource extends XarSource {
 
     @Override
     public String toString() {
-        return url;
+        return String.format("HttpXarSource{url='%s'}", url);
     }
 
     /**

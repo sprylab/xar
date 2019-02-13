@@ -375,7 +375,11 @@ public class XarEntry {
 
     @Override
     public String toString() {
-        return getName();
+        if (isDirectory) {
+            return String.format("XarEntry{name='%s', children=%d}", name, children.size());
+        } else {
+            return String.format("XarEntry{name='%s', size=%d}", name, size);
+        }
     }
 
 }
