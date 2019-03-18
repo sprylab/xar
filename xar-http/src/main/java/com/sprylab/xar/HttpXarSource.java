@@ -1,6 +1,5 @@
 package com.sprylab.xar;
 
-
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -25,15 +24,15 @@ public class HttpXarSource extends XarSource {
      * @param url the URL referencing the archive file
      */
     public HttpXarSource(final String url) {
-       this(url, null);
+        this(url, null);
     }
 
     /**
      * Create a new {@link XarSource} from a {@code url}. It is recommended to create and manage a global, shared {@link OkHttpClient} instance for
      * optimal overall performance. If {@code okHttpClient} is {@code null}, a default, non-shared {@link OkHttpClient} is used.
      *
-     * @param url the URL referencing the archive file
-     * @param  okHttpClient the {@link OkHttpClient} to use or {@code null} to use the default one
+     * @param url          the URL referencing the archive file
+     * @param okHttpClient the {@link OkHttpClient} to use or {@code null} to use the default one
      */
     public HttpXarSource(final String url, final OkHttpClient okHttpClient) {
         this.url = url;
@@ -80,7 +79,7 @@ public class HttpXarSource extends XarSource {
                 return Okio.buffer(response.body().source());
             } else {
                 response.close();
-                throw new IOException(String.format("Error executing request: %d %s", response.code(), response.message()));
+                throw new HttpException(String.format("Error executing request: %d %s", response.code(), response.message()), response);
             }
         } catch (final IOException e) {
             throw new XarException("Error reading contents", e);
@@ -100,7 +99,8 @@ public class HttpXarSource extends XarSource {
                 final String contentLength = response.header("Content-Length");
                 return Long.valueOf(contentLength);
             } else {
-                throw new IOException(String.format("Error executing request: %d %s", response.code(), response.message()));
+                response.close();
+                throw new HttpException(String.format("Error executing request: %d %s", response.code(), response.message()), response);
             }
         } catch (final IOException | NumberFormatException e) {
             throw new XarException("Error reading content length", e);
