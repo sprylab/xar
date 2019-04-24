@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import com.sprylab.xar.toc.ToCFactory;
+import com.sprylab.xar.toc.TocFactory;
 import com.sprylab.xar.toc.model.ToC;
 import com.sprylab.xar.utils.FilePath;
 import com.sprylab.xar.utils.StringUtils;
@@ -29,7 +29,7 @@ public class XarToc {
     public XarToc(final XarSource xarSource) throws XarException {
         this.xarSource = xarSource;
         try (final InputStream inputStream = xarSource.getToCStream()) {
-            this.model = ToCFactory.fromInputStream(inputStream);
+            this.model = TocFactory.fromInputStream(inputStream);
             createEntries();
         } catch (final Exception e) {
             throw new XarException("Could not create toc", e);

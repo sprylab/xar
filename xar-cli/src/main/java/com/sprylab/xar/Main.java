@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcabi.manifests.Manifests;
-import com.sprylab.xar.toc.ToCFactory;
+import com.sprylab.xar.toc.TocFactory;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 import com.sprylab.xar.utils.StringUtils;
 import com.sprylab.xar.writer.XarPacker;
@@ -168,7 +168,7 @@ public final class Main {
     private static void dumpToC(final XarSource xarSource, final File tocFile) {
         try (final InputStream toCStream = xarSource.getToCStream()) {
             try (final OutputStream os = new FileOutputStream(tocFile)) {
-                ToCFactory.copy(toCStream, os);
+                TocFactory.copy(toCStream, os);
             }
         } catch (final Exception e) {
             LOG.error("Failed dumping header.", e);

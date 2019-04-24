@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.zip.Deflater;
 
 import com.sprylab.xar.XarHeader;
-import com.sprylab.xar.toc.ToCFactory;
+import com.sprylab.xar.toc.TocFactory;
 import com.sprylab.xar.toc.model.Checksum;
 import com.sprylab.xar.toc.model.ChecksumAlgorithm;
 import com.sprylab.xar.toc.model.Data;
@@ -145,7 +145,7 @@ public class XarSink {
         final long tocBufferSize;
         final Buffer tocCompressedBuffer;
         try (final Buffer tocBuffer = new Buffer()) {
-            ToCFactory.toOutputStream(toc, tocBuffer.outputStream());
+            TocFactory.toOutputStream(toc, tocBuffer.outputStream());
             tocBufferSize = tocBuffer.size();
 
             tocCompressedBuffer = new Buffer();

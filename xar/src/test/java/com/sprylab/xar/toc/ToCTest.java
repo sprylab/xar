@@ -31,10 +31,10 @@ public class ToCTest {
 
     @Test
     public void testToC() throws Exception {
-        final ToC noneToC = ToCFactory.fromInputStream(FileUtils.openInputStream(noneToCFile));
+        final ToC noneToC = TocFactory.fromInputStream(FileUtils.openInputStream(noneToCFile));
         assertNotNull(noneToC);
 
-        final ToC gzipToC = ToCFactory.fromInputStream(FileUtils.openInputStream(gzipToCFile));
+        final ToC gzipToC = TocFactory.fromInputStream(FileUtils.openInputStream(gzipToCFile));
         assertNotNull(gzipToC);
     }
 }

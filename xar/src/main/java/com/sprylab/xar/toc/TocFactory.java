@@ -23,24 +23,17 @@ import com.sprylab.xar.toc.model.Xar;
 /**
  * Factory for easily reading and writing {@link ToC} from and to streams.
  */
-public class ToCFactory {
+public class TocFactory {
 
-    private static Serializer SERIALIZER;
-
-    private static Serializer getSerializer() {
-        if (SERIALIZER == null) {
-            final Style style = new HyphenStyle();
-            final Format format = new Format(style);
-
-            final RegistryMatcher matcher = new RegistryMatcher();
-            matcher.bind(Date.class, DateTransform.class);
-            matcher.bind(ChecksumAlgorithm.class, new LowerCaseEnumTransform(ChecksumAlgorithm.class));
-            matcher.bind(Type.class, new LowerCaseEnumTransform(Type.class));
-            matcher.bind(Encoding.class, new EncodingEnumTransform());
-
-            SERIALIZER = new Persister(matcher, format);
-        }
-        return SERIALIZER;
+    private static Serializer createFactory() {
+        final Style style = new HyphenStyle();
+        final Format format = new Format(style);
+        final RegistryMatcher matcher = new RegistryMatcher();
+        matcher.bind(Date.class, DateTransform.class);
+        matcher.bind(ChecksumAlgorithm.class, new LowerCaseEnumTransform(ChecksumAlgorithm.class));
+        matcher.bind(Type.class, new LowerCaseEnumTransform(Type.class));
+        matcher.bind(Encoding.class, new EncodingEnumTransform());
+        return new Persister(matcher, format);
     }
 
     /**
@@ -51,7 +44,7 @@ public class ToCFactory {
      * @throws Exception when the {@link ToC} could not be deserialized
      */
     public static ToC fromInputStream(final InputStream source) throws Exception {
-        final Serializer serializer = getSerializer();
+        final Serializer serializer = createFactory();
         final Xar xar = serializer.read(Xar.class, source, false);
         return xar.getToc();
     }
@@ -64,7 +57,7 @@ public class ToCFactory {
      * @throws Exception when the {@link ToC} could not be deserialized or serialized
      */
     public static void copy(final InputStream source, final OutputStream target) throws Exception {
-        final Serializer serializer = getSerializer();
+        final Serializer serializer = createFactory();
         final Xar xar = serializer.read(Xar.class, source, false);
         serializer.write(xar, target);
     }
@@ -80,7 +73,7 @@ public class ToCFactory {
         final Xar xar = new Xar();
         xar.setToc(toc);
 
-        final Serializer serializer = getSerializer();
+        final Serializer serializer = createFactory();
         serializer.write(xar, target);
     }
 }
