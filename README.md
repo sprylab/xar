@@ -76,7 +76,7 @@ Download [the latest JAR][2] or grab via Maven:
 ```
 or Gradle:
 ```groovy
-compile 'com.sprylab.xar:xar:0.9.8'
+compile 'com.sprylab.xar:xar:0.9.9'
 ```
 
 If you need to access files via HTTP, add the `xar-http` module as a dependency, too:
@@ -89,7 +89,7 @@ If you need to access files via HTTP, add the `xar-http` module as a dependency,
 ```
 or Gradle:
 ```groovy
-compile 'com.sprylab.xar:xar-http:0.9.8'
+compile 'com.sprylab.xar:xar-http:0.9.9'
 ```
 
 There is also a CLI version, which mimics the behavior of the original C executable.
