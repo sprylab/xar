@@ -71,7 +71,7 @@ Download [the latest JAR][2] or grab via Maven:
 <dependency>
   <groupId>com.sprylab.xar</groupId>
   <artifactId>xar</artifactId>
-  <version>0.9.8</version>
+  <version>0.9.9</version>
 </dependency>
 ```
 or Gradle:
@@ -84,7 +84,7 @@ If you need to access files via HTTP, add the `xar-http` module as a dependency,
 <dependency>
   <groupId>com.sprylab.xar</groupId>
   <artifactId>xar-http</artifactId>
-  <version>0.9.8</version>
+  <version>0.9.9</version>
 </dependency>
 ```
 or Gradle:

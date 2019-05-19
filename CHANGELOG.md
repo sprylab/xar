@@ -1,6 +1,17 @@
 Change Log
 ==========
 
+Version 0.9.9
+-------------
+
+* Fix thread-safety of TocFactory
+
+Version 0.9.8
+-------------
+
+* Fix response in executeRangeRequest is not closed in case of an error
+* Wrap network errors in HttpException to provide access to the response
+
 Version 0.9.7
 -------------
 
