@@ -9,7 +9,7 @@
 
     <groupId>com.sprylab.xar</groupId>
     <artifactId>parent</artifactId>
-    <version>0.9.9</version>
+    <version>0.9.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>xar (Parent)</name>
