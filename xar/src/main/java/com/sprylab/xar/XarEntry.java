@@ -125,6 +125,13 @@ public class XarEntry {
     }
 
     /**
+     * @return the {@link Encoding} of this entry
+     */
+    public Encoding getEncoding() {
+        return encoding;
+    }
+
+    /**
      * @return the ID of this entry
      */
     public String getId() {
@@ -259,6 +266,31 @@ public class XarEntry {
             default:
                 throw new UnsupportedEncodingException("Encoding not supported: " + encoding.name());
         }
+    }
+
+    /**
+     * Gets access to the underlying byte data of this entry.
+     * <p>
+     * This allows direct streaming from the archive file without extracting and writing the corresponding file to disk beforehand.
+     * If the data is encoded (see {@link Encoding}), then it won't be decompressed while reading from the returned {@link Source}.     
+     * <p>
+     * When trying to call this method on an directory entry (i.e. {@link #isDirectory()} returns {@code true}),
+     * an {@link IllegalStateException} is thrown.
+     *
+     * @return the {@link Source} to read from
+     * @throws IOException when an I/O error occurred while reading
+     */
+    public Source getRawSource() throws IOException {
+        if (isDirectory) {
+            throw new IllegalStateException("Cannot retrieve source for entries of type directory.");
+        }
+
+        if (encoding == null) {
+            // file is empty
+            return new Buffer();
+        }
+
+        return xarSource.getRange(offset, length);
     }
 
     /**
