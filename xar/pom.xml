@@ -18,8 +18,6 @@
         <joou.version>0.9.4</joou.version>
 
         <!-- Test dependency versions -->
-        <junit.version>4.12</junit.version>
-        <commons-codec.version>1.10</commons-codec.version>
     </properties>
 
     <dependencies>

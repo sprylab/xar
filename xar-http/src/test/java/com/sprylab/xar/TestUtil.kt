@@ -1,24 +1,16 @@
-package com.sprylab.xar;
+@file:JvmName("TestUtil")
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
+package com.sprylab.xar
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.io.FileUtils
+import org.apache.commons.lang3.RandomStringUtils
+import java.io.File
+import java.net.URISyntaxException
 
-public final class TestUtil {
+fun getTempDirectory(): File = File(FileUtils.getTempDirectory(), RandomStringUtils.randomAlphabetic(10))
 
-    public static File getTempDirectory() {
-        return new File(FileUtils.getTempDirectory(), RandomStringUtils.randomAlphabetic(10));
-    }
-
-    public static File getClasspathResourceAsFile(final String name) throws URISyntaxException {
-        final URL resource = Thread.currentThread().getContextClassLoader().getResource(name);
-        if (resource == null) {
-            return null;
-        }
-        return new File(resource.toURI());
-    }
-
+@Throws(URISyntaxException::class)
+fun getClasspathResourceAsFile(name: String?): File? {
+    val resource = Thread.currentThread().contextClassLoader.getResource(name) ?: return null
+    return File(resource.toURI())
 }

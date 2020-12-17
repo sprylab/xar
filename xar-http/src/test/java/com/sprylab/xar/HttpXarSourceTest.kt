@@ -1,319 +1,250 @@
-package com.sprylab.xar;
+package com.sprylab.xar
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockWebServer
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
+import org.joou.UInteger
+import org.joou.ULong
+import org.joou.UShort
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import java.io.File
+import java.io.IOException
+import java.net.URISyntaxException
+import java.util.*
+import java.util.regex.Pattern
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+class HttpXarSourceTest {
+    @Rule @JvmField
+    val mockWebServer = MockWebServer()
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.joou.UInteger;
-import org.joou.ULong;
-import org.joou.UShort;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
-import okio.Buffer;
-import okio.BufferedSource;
-import okio.Okio;
-
-/**
- * User: pschiffer
- * Date: 21.11.2016
- * Time: 21:46
- */
-public class HttpXarSourceTest {
-
-    private static final Pattern PATTERN_RANGE_HEADER = Pattern.compile("bytes=(\\d+)-(\\d+)");
-    private static final String TEST_XAR_NONE_FILE_NAME = "test_none.xar";
-    private static final String TEST_XAR_GZIP_FILE_NAME = "test_gzip.xar";
-    private static final String UNPACKED_REFERENCE_FILES_DIR_NAME = "unpacked";
-
-    @Rule
-    public MockWebServer mockWebServer = new MockWebServer();
-
-    private XarSource noneXarSource;
-    private XarSource gzipXarSource;
+    lateinit var noneXarSource: XarSource
+    lateinit var gzipXarSource: XarSource
 
     @Before
-    public void setUpMockWebServer() throws Exception {
-        final Dispatcher dispatcher = new TestFileDispatcher();
-        mockWebServer.setDispatcher(dispatcher);
+    @Throws(Exception::class)
+    fun setUpMockWebServer() {
+        val dispatcher: Dispatcher = TestFileDispatcher()
+        mockWebServer.dispatcher = dispatcher
     }
 
     @Before
-    public void setUp() throws Exception {
-        noneXarSource = new HttpXarSource(mockWebServer.url("/" + HttpXarSourceTest.TEST_XAR_NONE_FILE_NAME).toString());
-
-        gzipXarSource = new HttpXarSource(mockWebServer.url("/" + HttpXarSourceTest.TEST_XAR_GZIP_FILE_NAME).toString());
+    @Throws(Exception::class)
+    fun setUp() {
+        noneXarSource = HttpXarSource(mockWebServer.url("/$TEST_XAR_NONE_FILE_NAME").toString())
+        gzipXarSource = HttpXarSource(mockWebServer.url("/$TEST_XAR_GZIP_FILE_NAME").toString())
     }
 
     @Test
-    public void checkNoneHeader() throws Exception {
-        final XarHeader header = noneXarSource.getHeader();
-        assertEquals(UInteger.valueOf(0x78617221), header.getMagic());
-        assertEquals(UShort.valueOf(28), header.getSize());
-        assertEquals(UShort.valueOf(1), header.getVersion());
-        assertEquals(ULong.valueOf(1040), header.getTocLengthCompressed());
-        assertEquals(ULong.valueOf(5873), header.getTocLengthUncompressed());
-        assertEquals(UInteger.valueOf(1), header.getCksumAlg());
+    @Throws(Exception::class)
+    fun checkNoneHeader() {
+        val header = noneXarSource.header
+        assertEquals(UInteger.valueOf(0x78617221), header.magic)
+        assertEquals(UShort.valueOf(28), header.size)
+        assertEquals(UShort.valueOf(1), header.version)
+        assertEquals(ULong.valueOf(1040), header.tocLengthCompressed)
+        assertEquals(ULong.valueOf(5873), header.tocLengthUncompressed)
+        assertEquals(UInteger.valueOf(1), header.cksumAlg)
     }
 
     @Test
-    public void checkGzipHeader() throws Exception {
-        final XarHeader header = gzipXarSource.getHeader();
-        assertEquals(UInteger.valueOf(0x78617221), header.getMagic());
-        assertEquals(UShort.valueOf(28), header.getSize());
-        assertEquals(UShort.valueOf(1), header.getVersion());
-        assertEquals(ULong.valueOf(1041), header.getTocLengthCompressed());
-        assertEquals(ULong.valueOf(5873), header.getTocLengthUncompressed());
-        assertEquals(UInteger.valueOf(1), header.getCksumAlg());
+    @Throws(Exception::class)
+    fun checkGzipHeader() {
+        val header = gzipXarSource.header
+        assertEquals(UInteger.valueOf(0x78617221), header.magic)
+        assertEquals(UShort.valueOf(28), header.size)
+        assertEquals(UShort.valueOf(1), header.version)
+        assertEquals(ULong.valueOf(1041), header.tocLengthCompressed)
+        assertEquals(ULong.valueOf(5873), header.tocLengthUncompressed)
+        assertEquals(UInteger.valueOf(1), header.cksumAlg)
     }
 
     @Test
-    public void testListEntries() throws XarException {
-        for (final XarSource xarSource : getXarFiles()) {
-            checkEntries(xarSource);
+    @Throws(XarException::class)
+    fun testListEntries() {
+        for (xarSource in xarFiles) {
+            checkEntries(xarSource)
         }
     }
 
-    private void checkEntries(final XarSource xarSource) throws XarException {
-        final Map<String, Boolean> entriesToFind = new HashMap<>();
-
-        entriesToFind.put("file.txt", Boolean.FALSE);
-        entriesToFind.put("dir", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_1", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_1/subsubdir_file_1.txt", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_2", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_2/empty_file.txt", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_3", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_3/1.txt", Boolean.FALSE);
-
-        final List<XarEntry> xarEntries = xarSource.getEntries();
-
-        assertEquals(9, xarEntries.size());
-
-        for (final XarEntry xarEntry : xarEntries) {
-            final String name = xarEntry.getName();
-            final Boolean isFound = entriesToFind.get(name);
+    @Throws(XarException::class)
+    private fun checkEntries(xarSource: XarSource) {
+        val entriesToFind: MutableMap<String, Boolean> = HashMap()
+        entriesToFind["file.txt"] = java.lang.Boolean.FALSE
+        entriesToFind["dir"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_1"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_1/subsubdir_file_1.txt"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_2"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_2/empty_file.txt"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_3"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_3/1.txt"] = java.lang.Boolean.FALSE
+        val xarEntries = xarSource.entries
+        assertEquals(9, xarEntries.size.toLong())
+        for (xarEntry in xarEntries) {
+            val name = xarEntry.name
+            val isFound = entriesToFind[name]
             if (isFound != null) {
-                entriesToFind.put(name, Boolean.TRUE);
+                entriesToFind[name] = java.lang.Boolean.TRUE
             }
         }
-
-        for (final Map.Entry<String, Boolean> entry : entriesToFind.entrySet()) {
-            assertTrue("Expected entry " + entry.getKey() + " not found.", entry.getValue());
+        for ((key, value) in entriesToFind) {
+            assertTrue("Expected entry $key not found.", value)
         }
     }
 
     @Test
-    public void testListSpecificEntries() throws Exception {
-        for (final XarSource xarSource : getXarFiles()) {
-            checkSpecificEntries(xarSource);
+    @Throws(Exception::class)
+    fun testListSpecificEntries() {
+        for (xarSource in xarFiles) {
+            checkSpecificEntries(xarSource)
         }
     }
 
-    private void checkSpecificEntries(final XarSource xarFile) throws XarException {
-        final Map<String, Boolean> entriesToFind = new HashMap<>();
-
-        entriesToFind.put("dir/subdir1/subsubdir_1", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_2", Boolean.FALSE);
-        entriesToFind.put("dir/subdir1/subsubdir_3", Boolean.FALSE);
-
-        final XarEntry entry = xarFile.getEntry("dir/subdir1");
-        assertNotNull(entry);
-        assertNotNull(entry.getChildren());
-        final List<XarEntry> children = entry.getChildren();
-
-        assertEquals(3, children.size());
-
-        for (final XarEntry xarEntry : children) {
-            final String name = xarEntry.getName();
-            final Boolean isFound = entriesToFind.get(name);
+    @Throws(XarException::class)
+    private fun checkSpecificEntries(xarFile: XarSource) {
+        val entriesToFind: MutableMap<String, Boolean> = HashMap()
+        entriesToFind["dir/subdir1/subsubdir_1"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_2"] = java.lang.Boolean.FALSE
+        entriesToFind["dir/subdir1/subsubdir_3"] = java.lang.Boolean.FALSE
+        val entry = xarFile.getEntry("dir/subdir1")
+        assertNotNull(entry)
+        assertNotNull(entry.children)
+        val children = entry.children
+        assertEquals(3, children.size.toLong())
+        for (xarEntry in children) {
+            val name = xarEntry.name
+            val isFound = entriesToFind[name]
             if (isFound != null) {
-                entriesToFind.put(name, Boolean.TRUE);
+                entriesToFind[name] = java.lang.Boolean.TRUE
             }
         }
-
-        for (final Map.Entry<String, Boolean> findingEntry : entriesToFind.entrySet()) {
-            assertTrue("Expected entry " + findingEntry.getKey() + " not found.", findingEntry.getValue());
+        for ((key, value) in entriesToFind) {
+            assertTrue("Expected entry $key not found.", value)
         }
     }
 
     @Test
-    public void testGetEntry() throws Exception {
-        for (final XarSource xarSource : getXarFiles()) {
-            checkEntry(xarSource, "file.txt", getResourceAsByteArray("unpacked/file.txt"));
-            checkEntry(xarSource, "dir/subdir1/subsubdir_1/subsubdir_file_1.txt",
-                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_1/subsubdir_file_1.txt"));
-            checkEntry(xarSource, "dir/subdir1/subsubdir_2/empty_file.txt",
-                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_2/empty_file.txt"));
-            checkEntry(xarSource, "dir/subdir1/subsubdir_3/1.txt",
-                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_3/1.txt"));
+    @Throws(Exception::class)
+    fun testGetEntry() {
+        for (xarSource in xarFiles) {
+            checkEntry(xarSource, "file.txt", getResourceAsByteArray("unpacked/file.txt"))
+            checkEntry(
+                xarSource, "dir/subdir1/subsubdir_1/subsubdir_file_1.txt",
+                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_1/subsubdir_file_1.txt")
+            )
+            checkEntry(
+                xarSource, "dir/subdir1/subsubdir_2/empty_file.txt",
+                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_2/empty_file.txt")
+            )
+            checkEntry(
+                xarSource, "dir/subdir1/subsubdir_3/1.txt",
+                getResourceAsByteArray("unpacked/dir/subdir1/subsubdir_3/1.txt")
+            )
         }
     }
 
-    private byte[] getResourceAsByteArray(final String resourceName) throws URISyntaxException, IOException {
-        return IOUtils.toByteArray(FileUtils.openInputStream(TestUtil.getClasspathResourceAsFile(resourceName)));
+    @Throws(URISyntaxException::class, IOException::class)
+    private fun getResourceAsByteArray(resourceName: String): ByteArray {
+        return IOUtils.toByteArray(FileUtils.openInputStream(getClasspathResourceAsFile(resourceName)))
     }
 
-    private void checkEntry(final XarSource xarSource, final String entryName, final byte[] expectedContent)
-        throws IOException {
-        final XarEntry xarEntry = xarSource.getEntry(entryName);
-
-        assertEquals(entryName, xarEntry.getName());
-
-        final byte[] actualContent = xarEntry.getBytes();
-        final String actualContentString = new String(actualContent).trim();
-        final String expectedContentString = new String(expectedContent).trim();
-        assertEquals("Content of extracted file is not equal.", expectedContentString, actualContentString);
+    @Throws(IOException::class)
+    private fun checkEntry(xarSource: XarSource, entryName: String, expectedContent: ByteArray) {
+        val xarEntry = xarSource.getEntry(entryName)
+        assertEquals(entryName, xarEntry.name)
+        val actualContent = xarEntry.bytes
+        val actualContentString = String(actualContent).trim { it <= ' ' }
+        val expectedContentString = String(expectedContent).trim { it <= ' ' }
+        assertEquals("Content of extracted file is not equal.", expectedContentString, actualContentString)
     }
 
     @Test
-    public void testFileSize() throws Exception {
-        assertEquals(getResourceAsByteArray(TEST_XAR_NONE_FILE_NAME).length, noneXarSource.getSize());
-        assertEquals(getResourceAsByteArray(TEST_XAR_GZIP_FILE_NAME).length, gzipXarSource.getSize());
+    @Throws(Exception::class)
+    fun testFileSize() {
+        assertEquals(getResourceAsByteArray(TEST_XAR_NONE_FILE_NAME).size.toLong(), noneXarSource.size)
+        assertEquals(getResourceAsByteArray(TEST_XAR_GZIP_FILE_NAME).size.toLong(), gzipXarSource.size)
     }
 
     @Test
-    public void testExtractAllFiles() throws IOException, URISyntaxException {
-        for (final XarSource xarFile : getXarFiles()) {
-            checkExtractAllFiles(xarFile, false);
-            checkExtractAllFiles(xarFile, true);
+    @Throws(IOException::class, URISyntaxException::class)
+    fun testExtractAllFiles() {
+        for (xarFile in xarFiles) {
+            checkExtractAllFiles(xarFile, false)
+            checkExtractAllFiles(xarFile, true)
         }
     }
 
-    private void checkExtractAllFiles(final XarSource xarSource, final boolean check)
-        throws IOException, URISyntaxException {
-        final File tempDir = TestUtil.getTempDirectory();
-        xarSource.extractAll(tempDir, check, new XarSource.OnEntryExtractedListener() {
-
-            @Override
-            public void onEntryExtracted(final XarEntry entry) {
-                try {
-                    assertTrue(xarSource.hasEntry(entry.getName()));
-                } catch (final XarException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        // compare extracted files with reference files
-        final File unpackedReferenceDirectory = TestUtil.getClasspathResourceAsFile(HttpXarSourceTest.UNPACKED_REFERENCE_FILES_DIR_NAME);
-
-        final Collection<File> referenceFiles = FileUtils.listFiles(unpackedReferenceDirectory, null, true);
-        for (final File referenceFile : referenceFiles) {
-            final String relativeFileName = referenceFile.getAbsolutePath()
-                .replace(unpackedReferenceDirectory.getAbsolutePath(), "");
-
-            FileUtils.contentEquals(referenceFile, new File(tempDir, relativeFileName));
-        }
-
-        // clean up
-        FileUtils.deleteDirectory(tempDir);
-    }
-
-    @Test
-    public void testExtractDir() throws Exception {
-        for (final XarSource xarFile : getXarFiles()) {
-            checkExtractDirectory(xarFile, false);
-            checkExtractDirectory(xarFile, true);
-        }
-    }
-
-    private void checkExtractDirectory(final XarSource xarFile, final boolean check)
-        throws IOException, URISyntaxException {
-        final File tempDir = TestUtil.getTempDirectory();
-        final XarEntry xarEntry = xarFile.getEntry("dir");
-        xarEntry.extract(tempDir, check, new XarSource.OnEntryExtractedListener() {
-
-            @Override
-            public void onEntryExtracted(final XarEntry entry) {
-                try {
-                    assertTrue(xarFile.hasEntry(entry.getName()));
-                } catch (final XarException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        // compare extracted files with reference files
-        final File unpackedReferenceDirectory = TestUtil.getClasspathResourceAsFile(HttpXarSourceTest.UNPACKED_REFERENCE_FILES_DIR_NAME);
-
-        final Collection<File> referenceFiles = FileUtils.listFiles(unpackedReferenceDirectory, null, true);
-        for (final File referenceFile : referenceFiles) {
-            final String relativeFileName = referenceFile.getAbsolutePath()
-                .replace(unpackedReferenceDirectory.getAbsolutePath(), "");
-
-            FileUtils.contentEquals(referenceFile, new File(tempDir, relativeFileName));
-        }
-
-        // clean up
-        FileUtils.deleteDirectory(tempDir);
-    }
-
-    private List<XarSource> getXarFiles() {
-        return Arrays.asList(noneXarSource, gzipXarSource);
-    }
-
-    private static class TestFileDispatcher extends Dispatcher {
-
-        @Override
-        public MockResponse dispatch(final RecordedRequest recordedRequest) throws InterruptedException {
+    @Throws(IOException::class, URISyntaxException::class)
+    private fun checkExtractAllFiles(xarSource: XarSource, check: Boolean) {
+        val tempDir = getTempDirectory()
+        xarSource.extractAll(tempDir, check) { entry ->
             try {
-                final MockResponse mockResponse = new MockResponse();
-                final File file = TestUtil.getClasspathResourceAsFile(recordedRequest.getPath().substring(1));
-                if (file == null || !file.exists()) {
-                    return mockResponse.setResponseCode(404);
-                }
-
-                if (recordedRequest.getMethod().equals("HEAD")) {
-                    return mockResponse.setHeader("Content-Length", file.length());
-                } else if (recordedRequest.getMethod().equals("GET")) {
-                    final Buffer buffer = new Buffer();
-                    final String range = recordedRequest.getHeader("Range");
-                    final BufferedSource source = Okio.buffer(Okio.source(file));
-                    if (range != null) {
-                        // Partial file
-                        final Matcher matcher = PATTERN_RANGE_HEADER.matcher(range);
-                        if (matcher.matches()) {
-                            final Integer start = Integer.valueOf(matcher.group(1));
-                            final Integer end = Integer.valueOf(matcher.group(2));
-                            source.skip(start);
-                            source.readFully(buffer, end - start + 1);
-                        } else {
-                            // Full file
-                            source.readAll(buffer);
-                        }
-                    } else {
-                        // Full file
-                        source.readAll(buffer);
-                    }
-
-                    return mockResponse.setBody(buffer);
-                }
-
-                return mockResponse.setResponseCode(500);
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
+                assertTrue(xarSource.hasEntry(entry.name))
+            } catch (e: XarException) {
+                e.printStackTrace()
             }
-
         }
+
+        // compare extracted files with reference files
+        val unpackedReferenceDirectory = getClasspathResourceAsFile(UNPACKED_REFERENCE_FILES_DIR_NAME)!!
+        val referenceFiles = FileUtils.listFiles(unpackedReferenceDirectory, null, true)
+        for (referenceFile in referenceFiles) {
+            val relativeFileName = referenceFile.absolutePath
+                .replace(unpackedReferenceDirectory.absolutePath, "")
+            FileUtils.contentEquals(referenceFile, File(tempDir, relativeFileName))
+        }
+
+        // clean up
+        FileUtils.deleteDirectory(tempDir)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testExtractDir() {
+        for (xarFile in xarFiles) {
+            checkExtractDirectory(xarFile, false)
+            checkExtractDirectory(xarFile, true)
+        }
+    }
+
+    @Throws(IOException::class, URISyntaxException::class)
+    private fun checkExtractDirectory(xarFile: XarSource, check: Boolean) {
+        val tempDir = getTempDirectory()
+        val xarEntry = xarFile.getEntry("dir")
+        xarEntry.extract(tempDir, check) { entry ->
+            try {
+                assertTrue(xarFile.hasEntry(entry.name))
+            } catch (e: XarException) {
+                e.printStackTrace()
+            }
+        }
+
+        // compare extracted files with reference files
+        val unpackedReferenceDirectory = getClasspathResourceAsFile(UNPACKED_REFERENCE_FILES_DIR_NAME)!!
+        val referenceFiles = FileUtils.listFiles(unpackedReferenceDirectory, null, true)
+        for (referenceFile in referenceFiles) {
+            val relativeFileName = referenceFile.absolutePath
+                .replace(unpackedReferenceDirectory.absolutePath, "")
+            FileUtils.contentEquals(referenceFile, File(tempDir, relativeFileName))
+        }
+
+        // clean up
+        FileUtils.deleteDirectory(tempDir)
+    }
+
+    private val xarFiles: List<XarSource>
+        get() = listOf(noneXarSource, gzipXarSource)
+
+    companion object {
+        val PATTERN_RANGE_HEADER: Pattern = "bytes=(\\d+)-(\\d+)".toPattern()
+        const val TEST_XAR_NONE_FILE_NAME = "test_none.xar"
+        const val TEST_XAR_GZIP_FILE_NAME = "test_gzip.xar"
+        const val UNPACKED_REFERENCE_FILES_DIR_NAME = "unpacked"
     }
 }
