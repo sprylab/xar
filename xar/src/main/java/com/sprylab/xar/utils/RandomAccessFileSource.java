@@ -65,6 +65,9 @@ public class RandomAccessFileSource implements Source {
         if (byteCount == 0L) {
             return 0L;
         }
+        if (remainingLength == 0L) {
+            return -1L;
+        }
 
         try {
             timeout.throwIfReached();

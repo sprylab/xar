@@ -9,14 +9,7 @@
 
     <artifactId>xar-http</artifactId>
     <packaging>jar</packaging>
-
     <name>xar (HTTP)</name>
-
-    <properties>
-        <!-- Dependency versions -->
-        <okhttp.version>3.11.0</okhttp.version>
-
-    </properties>
 
     <dependencies>
         <!-- Xar Library -->
