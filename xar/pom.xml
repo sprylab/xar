@@ -121,7 +121,7 @@
         <profile>
             <id>UntilJava8</id>
             <activation>
-              <jdk>[1.0, 1.9)</jdk>
+              <activeByDefault>true</activeByDefault>
             </activation>
             
             <dependencies>
