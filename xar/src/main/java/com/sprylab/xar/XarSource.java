@@ -22,6 +22,8 @@ public abstract class XarSource {
 
     static boolean DEBUG;
 
+    public XarTocParser customParser;
+
     private XarHeader header;
 
     private XarToc toc;
@@ -195,7 +197,7 @@ public abstract class XarSource {
      * @throws XarException when there is an error while reading
      */
     private XarToc createToc() throws XarException {
-        return new XarToc(this);
+        return new XarToc(this, customParser);
     }
 
     /**
