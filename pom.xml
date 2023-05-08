@@ -65,7 +65,7 @@
         <!-- Dependency versions -->
         <commons-cli.version>1.4</commons-cli.version>
         <jcabi-manifests.version>1.2.1</jcabi-manifests.version>
-        <org.slf4j-version>2.0.7</org.slf4j-version>
+        <org.slf4j-version>1.7.36</org.slf4j-version>
         <okhttp.version>4.10.0</okhttp.version>
         <okio.version>2.9.0</okio.version>
         <simple-xml.version>2.7.1</simple-xml.version>
