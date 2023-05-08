@@ -3,7 +3,7 @@
 
     <groupId>com.sprylab.xar</groupId>
     <artifactId>parent</artifactId>
-    <version>0.9.11-SNAPSHOT</version>
+    <version>0.9.11</version>
     <packaging>pom</packaging>
 
     <name>xar (Parent)</name>
@@ -47,7 +47,7 @@
         <connection>scm:git:https://github.com/sprylab/xar.git</connection>
         <developerConnection>scm:git:git@github.com:sprylab/xar.git</developerConnection>
         <url>https://github.com/sprylab/xar</url>
-        <tag>HEAD</tag>
+        <tag>0.9.11</tag>
     </scm>
 
     <modules>
