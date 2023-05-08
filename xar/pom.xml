@@ -12,16 +12,6 @@
 
     <name>xar (Library)</name>
 
-    <properties>
-        <!-- Dependency versions -->
-        <simple-xml.version>2.7.1</simple-xml.version>
-        <joou.version>0.9.4</joou.version>
-
-        <!-- Test dependency versions -->
-        <junit.version>4.12</junit.version>
-        <commons-codec.version>1.10</commons-codec.version>
-    </properties>
-
     <dependencies>
         <!-- Simple XML Framework -->
         <dependency>

@@ -12,16 +12,6 @@
 
     <name>xar (CLI)</name>
 
-    <properties>
-        <!-- Dependency versions -->
-        <commons-cli.version>1.4</commons-cli.version>
-        <jcabi-manifests.version>1.1</jcabi-manifests.version>
-
-        <!-- Plugin versions -->
-        <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
-        <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -56,6 +46,10 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
                 <version>${buildnumber-maven-plugin.version}</version>
@@ -85,6 +79,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
