@@ -1,11 +1,14 @@
 package com.sprylab.xar.toc.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 
 @Root
@@ -14,8 +17,10 @@ public class File {
     @Attribute
     private String id;
 
-    @Element
-    private String name;
+    @ElementListUnion({
+        @ElementList(inline = true, entry = "name", type = java.lang.String.class)
+    })
+    private List<String> name;
 
     @Element
     private Type type;
@@ -71,11 +76,11 @@ public class File {
     }
 
     public String getName() {
-        return name;
+        return name.get(0);
     }
 
     public void setName(final String name) {
-        this.name = name;
+        this.name = new ArrayList<>(Collections.singleton(name));
     }
 
     public Type getType() {

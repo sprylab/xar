@@ -19,14 +19,19 @@ public class ToCTest {
 
     private static final String TOC_GZIP_XML_FILE_NAME = "toc_gzip.xml";
 
+    private static final String TOC_DUPLICATE_XML_FILE_NAME = "toc_duplicate.xml";
+
     private File noneToCFile;
 
     private File gzipToCFile;
+
+    private File duplicateToCFile;
 
     @Before
     public void setUp() throws IOException, URISyntaxException {
         noneToCFile = TestUtil.getClasspathResourceAsFile(TOC_NONE_XML_FILE_NAME);
         gzipToCFile = TestUtil.getClasspathResourceAsFile(TOC_GZIP_XML_FILE_NAME);
+        duplicateToCFile = TestUtil.getClasspathResourceAsFile(TOC_DUPLICATE_XML_FILE_NAME);
     }
 
     @Test
@@ -36,5 +41,8 @@ public class ToCTest {
 
         final ToC gzipToC = TocFactory.fromInputStream(FileUtils.openInputStream(gzipToCFile));
         assertNotNull(gzipToC);
+
+        final ToC duplicateToC = TocFactory.fromInputStream(FileUtils.openInputStream(duplicateToCFile));
+        assertNotNull(duplicateToC);
     }
 }
