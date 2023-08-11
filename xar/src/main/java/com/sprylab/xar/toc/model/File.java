@@ -18,7 +18,7 @@ public class File {
     private String id;
 
     @ElementListUnion({
-        @ElementList(inline = true, entry = "name")
+        @ElementList(inline = true, entry = "name", type = java.lang.String.class)
     })
     private List<String> name;
 
