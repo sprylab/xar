@@ -41,13 +41,6 @@
             <version>${okio.version}</version>
         </dependency>
 
-        <!-- jOOU -->
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>joou-java-6</artifactId>
-            <version>${joou.version}</version>
-        </dependency>
-
         <!-- SLF4J -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -113,5 +106,39 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>UntilJava8</id>
+            <activation>
+              <activeByDefault>true</activeByDefault>
+            </activation>
+            
+            <dependencies>
+                <!-- jOOU -->
+                <dependency>
+                    <groupId>org.jooq</groupId>
+                    <artifactId>joou-java-6</artifactId>
+                    <version>${joou.version}</version>
+                </dependency>
+            </dependencies>
+            
+        </profile>
+                <profile>
+            <id>AfterJava8</id>
+            <activation>
+              <jdk>[1.9,)</jdk>
+            </activation>
+            
+            <dependencies>
+                <!-- jOOU -->
+                <dependency>
+                    <groupId>org.jooq</groupId>
+                    <artifactId>joou</artifactId>
+                    <version>${joou.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>
